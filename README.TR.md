@@ -11,7 +11,7 @@ Android ödeme terminal entegrasyonu için geliştirilmiş uygulama. CCV mAPI SD
 
 ## Kurulum
 
-1. `libs` klasörüne CCV SDK AAR dosyalarını ekleyin:
+1. `libs` klasörüne kendi CCV SDK AAR dosyalarınızı ekleyin:
    - `api-hardware-1.33.aar`
    - `pi-api-1.33.aar`
 

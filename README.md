@@ -13,7 +13,7 @@ Android payment terminal integration application. Manages POS terminal operation
 
 ## Installation
 
-1. Add CCV SDK AAR files to `libs` folder:
+1. Add your CCV SDK AAR files to `libs` folder:
    - `api-hardware-1.33.aar`
    - `pi-api-1.33.aar`
 
