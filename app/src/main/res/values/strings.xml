@@ -1,104 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CCV Ödeme</string>
+    <string name="app_name">CCV Payment</string>
     <string name="app_version">CCV Payment v1.0.0</string>
 
     <!-- Terminal Status -->
-    <string name="terminal_connected">Terminal Bağlı</string>
-    <string name="terminal_disconnected">Terminal Bağlı Değil</string>
-    <string name="terminal_checking">Kontrol Ediliyor…</string>
+    <string name="terminal_connected">Terminal Connected</string>
+    <string name="terminal_disconnected">Terminal Not Connected</string>
+    <string name="terminal_checking">Checking…</string>
     <string name="terminal_id">Terminal: %s</string>
 
     <!-- Menu Items -->
-    <string name="menu_payment">Ödeme Al</string>
-    <string name="menu_refund">İade</string>
-    <string name="menu_period_closing">Gün Sonu</string>
-    <string name="menu_period_closing_subtitle">Z-Report - Vardiyayı kapat</string>
+    <string name="menu_payment">Payment</string>
+    <string name="menu_refund">Refund</string>
+    <string name="menu_period_closing">End of Day</string>
+    <string name="menu_period_closing_subtitle">Z-Report - Close shift</string>
     <string name="menu_x_report">X-Report</string>
-    <string name="menu_x_report_subtitle">Ara rapor - Vardiyayı kapatmadan</string>
-    <string name="menu_transaction_history">İşlem Geçmişi</string>
-    <string name="menu_transaction_history_subtitle">Tüm işlemleri görüntüle</string>
-    <string name="menu_reprint_ticket">Son Fişi Yazdır</string>
-    <string name="menu_reprint_ticket_subtitle">Son işlem fişini tekrar yazdır</string>
-    <string name="menu_settings">Ayarlar</string>
-    <string name="menu_settings_subtitle">Terminal ve uygulama ayarları</string>
+    <string name="menu_x_report_subtitle">Interim report - Without closing shift</string>
+    <string name="menu_transaction_history">Transaction History</string>
+    <string name="menu_transaction_history_subtitle">View all transactions</string>
+    <string name="menu_reprint_ticket">Reprint Receipt</string>
+    <string name="menu_reprint_ticket_subtitle">Reprint last transaction receipt</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_settings_subtitle">Terminal and app settings</string>
 
     <!-- Payment Types -->
-    <string name="payment_type_sale">Satış</string>
-    <string name="payment_type_refund">İade</string>
-    <string name="payment_type_reversal">İptal</string>
-    <string name="payment_type_authorise">Ön Provizyon</string>
-    <string name="payment_type_capture">Provizyon Tamamla</string>
+    <string name="payment_type_sale">Sale</string>
+    <string name="payment_type_refund">Refund</string>
+    <string name="payment_type_reversal">Void</string>
+    <string name="payment_type_authorise">Pre-Auth</string>
+    <string name="payment_type_capture">Capture</string>
 
     <!-- Buttons -->
-    <string name="button_pay">Ödeme Al</string>
-    <string name="button_refund">İade Et</string>
-    <string name="button_cancel">İptal</string>
-    <string name="button_confirm">Onayla</string>
-    <string name="button_retry">Tekrar Dene</string>
+    <string name="button_pay">Pay</string>
+    <string name="button_refund">Refund</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_confirm">Confirm</string>
+    <string name="button_retry">Retry</string>
 
     <!-- Loading Messages -->
-    <string name="loading_please_wait">Lütfen bekleyin…</string>
-    <string name="loading_payment">Ödeme işleniyor…</string>
-    <string name="loading_refund">İade işleniyor…</string>
-    <string name="loading_period_closing">Gün sonu kapatılıyor…</string>
-    <string name="loading_x_report">X-Report alınıyor…</string>
-    <string name="loading_transactions">İşlemler yükleniyor…</string>
-    <string name="loading_terminal">Terminal kontrol ediliyor…</string>
+    <string name="loading_please_wait">Please wait…</string>
+    <string name="loading_payment">Processing payment…</string>
+    <string name="loading_refund">Processing refund…</string>
+    <string name="loading_period_closing">Closing end of day…</string>
+    <string name="loading_x_report">Getting X-Report…</string>
+    <string name="loading_transactions">Loading transactions…</string>
+    <string name="loading_terminal">Checking terminal…</string>
+    <string name="loading_receipt">Getting receipt…</string>
 
     <!-- Results -->
-    <string name="result_success">Başarılı</string>
-    <string name="result_failed">Başarısız</string>
-    <string name="result_cancelled">İptal Edildi</string>
-    <string name="result_timeout">Zaman Aşımı</string>
+    <string name="result_success">Success</string>
+    <string name="result_failed">Failed</string>
+    <string name="result_cancelled">Cancelled</string>
+    <string name="result_timeout">Timeout</string>
 
     <!-- Errors -->
-    <string name="error_unknown">Bilinmeyen hata oluştu</string>
-    <string name="error_terminal_not_connected">Terminal bağlı değil</string>
-    <string name="error_invalid_amount">Geçersiz tutar</string>
-    <string name="error_transaction_failed">İşlem başarısız oldu</string>
-    <string name="error_connection_failed">Bağlantı başarısız</string>
+    <string name="error_unknown">Unknown error occurred</string>
+    <string name="error_terminal_not_connected">Terminal not connected</string>
+    <string name="error_invalid_amount">Invalid amount</string>
+    <string name="error_transaction_failed">Transaction failed</string>
+    <string name="error_connection_failed">Connection failed</string>
+    <string name="error_receipt_not_found">Receipt not found</string>
 
     <!-- Dialog -->
-    <string name="dialog_confirm">Onayla</string>
-    <string name="dialog_cancel">İptal</string>
-    <string name="dialog_ok">Tamam</string>
-    <string name="dialog_close">Kapat</string>
+    <string name="dialog_confirm">Confirm</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_close">Close</string>
 
     <!-- Period Closing -->
-    <string name="period_closing_title">Gün Sonu Raporu</string>
-    <string name="period_closing_shift">Vardiya: %s</string>
-    <string name="period_closing_total_transactions">Toplam İşlem: %d</string>
-    <string name="period_closing_total_amount">Toplam Tutar: %s</string>
-    <string name="period_closing_total_refunds">Toplam İade: %s</string>
-    <string name="period_closing_net_amount">Net Tutar: %s</string>
+    <string name="period_closing_title">End of Day Report</string>
+    <string name="period_closing_shift">Shift: %s</string>
+    <string name="period_closing_total_transactions">Total Transactions: %d</string>
+    <string name="period_closing_total_amount">Total Amount: %s</string>
+    <string name="period_closing_total_refunds">Total Refunds: %s</string>
+    <string name="period_closing_net_amount">Net Amount: %s</string>
+    <string name="period_closing_success">End of day completed successfully</string>
+    <string name="x_report_success">Interim report retrieved</string>
+    <string name="x_report_title">X-Report</string>
 
     <!-- Transaction History -->
-    <string name="total_transactions">Toplam İşlem</string>
-    <string name="total_amount">Toplam Tutar</string>
-    <string name="no_transactions">Henüz işlem bulunmuyor</string>
+    <string name="total_transactions">Total Transactions</string>
+    <string name="total_amount">Total Amount</string>
+    <string name="no_transactions">No transactions yet</string>
 
     <!-- Transaction Status -->
-    <string name="transaction_status_success">Başarılı</string>
-    <string name="transaction_status_failed">Başarısız</string>
-    <string name="transaction_status_cancelled">İptal</string>
-    <string name="transaction_status_pending">Beklemede</string>
+    <string name="transaction_status_success">Success</string>
+    <string name="transaction_status_failed">Failed</string>
+    <string name="transaction_status_cancelled">Cancelled</string>
+    <string name="transaction_status_pending">Pending</string>
 
     <!-- Settings -->
-    <string name="settings_terminal_connection">Terminal Bağlantısı</string>
-    <string name="settings_ip_address">IP Adresi</string>
+    <string name="settings_terminal_connection">Terminal Connection</string>
+    <string name="settings_ip_address">IP Address</string>
     <string name="settings_port">Port</string>
-    <string name="settings_test_connection">Bağlantıyı Test Et</string>
-    <string name="settings_terminal_info">Terminal Bilgisi</string>
-    <string name="settings_status">Durum</string>
+    <string name="settings_test_connection">Test Connection</string>
+    <string name="settings_terminal_info">Terminal Info</string>
+    <string name="settings_status">Status</string>
     <string name="settings_terminal_id">Terminal ID</string>
-    <string name="settings_software_version">Yazılım Versiyonu</string>
-    <string name="settings_terminal_operations">Terminal İşlemleri</string>
-    <string name="settings_startup_terminal">Terminal Başlat</string>
-    <string name="settings_repeat_last_message">Son Mesajı Tekrarla</string>
-    <string name="settings_discover_terminals">Terminalleri Tara</string>
+    <string name="settings_software_version">Software Version</string>
+    <string name="settings_terminal_operations">Terminal Operations</string>
+    <string name="settings_startup_terminal">Start Terminal</string>
+    <string name="settings_repeat_last_message">Repeat Last Message</string>
+    <string name="settings_discover_terminals">Discover Terminals</string>
 
     <!-- Confirm Dialogs -->
-    <string name="confirm_period_closing_title">Gün Sonu</string>
-    <string name="confirm_period_closing_message">Gün sonunu kapatmak istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.</string>
+    <string name="confirm_period_closing_title">End of Day</string>
+    <string name="confirm_period_closing_message">Are you sure you want to close the day?\n\nThis action cannot be undone.</string>
+
+    <!-- Payment Result Messages -->
+    <string name="payment_success_message">Transaction completed successfully</string>
+    <string name="payment_transaction_id">Transaction ID: %s</string>
+    <string name="payment_amount">Amount: %s</string>
+    <string name="payment_card">Card: %s</string>
+    <string name="payment_card_number">Card No: %s</string>
+    <string name="payment_auth_code">Approval Code: %s</string>
+    <string name="last_receipt_title">Last Receipt</string>
+
+    <!-- Report Labels -->
+    <string name="label_shift">Shift: %s</string>
+    <string name="label_total_transactions">Total Transactions: %d</string>
+    <string name="label_total_sales">Total Sales: %s</string>
+    <string name="label_total_refunds">Total Refunds: %s</string>
+    <string name="label_net_amount">Net Amount: %s</string>
+
+    <!-- Status -->
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_unknown">Unknown</string>
 </resources>

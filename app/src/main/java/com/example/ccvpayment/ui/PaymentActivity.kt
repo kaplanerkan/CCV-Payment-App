@@ -192,12 +192,12 @@ class PaymentActivity : AppCompatActivity() {
 
     private fun showSuccessDialog(result: com.example.ccvpayment.model.PaymentResult) {
         val message = buildString {
-            append("İşlem başarıyla tamamlandı\n\n")
-            result.transactionId?.let { append("İşlem No: $it\n") }
-            result.amount?.let { append("Tutar: ${formatAmount(it.amount)}\n") }
-            result.cardBrand?.let { append("Kart: $it\n") }
-            result.maskedPan?.let { append("Kart No: $it\n") }
-            result.authCode?.let { append("Onay Kodu: $it") }
+            append(getString(R.string.payment_success_message)).append("\n\n")
+            result.transactionId?.let { append(getString(R.string.payment_transaction_id, it)).append("\n") }
+            result.amount?.let { append(getString(R.string.payment_amount, formatAmount(it.amount))).append("\n") }
+            result.cardBrand?.let { append(getString(R.string.payment_card, it)).append("\n") }
+            result.maskedPan?.let { append(getString(R.string.payment_card_number, it)).append("\n") }
+            result.authCode?.let { append(getString(R.string.payment_auth_code, it)) }
         }
 
         MaterialAlertDialogBuilder(this)

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CCV Zahlung</string>
+    <string name="app_version">CCV Zahlung v1.0.0</string>
+
+    <!-- Terminal Status -->
+    <string name="terminal_connected">Terminal Verbunden</string>
+    <string name="terminal_disconnected">Terminal Nicht Verbunden</string>
+    <string name="terminal_checking">Überprüfung…</string>
+    <string name="terminal_id">Terminal: %s</string>
+
+    <!-- Menu Items -->
+    <string name="menu_payment">Zahlung</string>
+    <string name="menu_refund">Erstattung</string>
+    <string name="menu_period_closing">Tagesabschluss</string>
+    <string name="menu_period_closing_subtitle">Z-Bericht - Schicht schließen</string>
+    <string name="menu_x_report">X-Bericht</string>
+    <string name="menu_x_report_subtitle">Zwischenbericht - Ohne Schicht zu schließen</string>
+    <string name="menu_transaction_history">Transaktionshistorie</string>
+    <string name="menu_transaction_history_subtitle">Alle Transaktionen anzeigen</string>
+    <string name="menu_reprint_ticket">Beleg Erneut Drucken</string>
+    <string name="menu_reprint_ticket_subtitle">Letzten Transaktionsbeleg erneut drucken</string>
+    <string name="menu_settings">Einstellungen</string>
+    <string name="menu_settings_subtitle">Terminal- und App-Einstellungen</string>
+
+    <!-- Payment Types -->
+    <string name="payment_type_sale">Verkauf</string>
+    <string name="payment_type_refund">Erstattung</string>
+    <string name="payment_type_reversal">Storno</string>
+    <string name="payment_type_authorise">Vorautorisierung</string>
+    <string name="payment_type_capture">Erfassung</string>
+
+    <!-- Buttons -->
+    <string name="button_pay">Bezahlen</string>
+    <string name="button_refund">Erstatten</string>
+    <string name="button_cancel">Abbrechen</string>
+    <string name="button_confirm">Bestätigen</string>
+    <string name="button_retry">Wiederholen</string>
+
+    <!-- Loading Messages -->
+    <string name="loading_please_wait">Bitte warten…</string>
+    <string name="loading_payment">Zahlung wird verarbeitet…</string>
+    <string name="loading_refund">Erstattung wird verarbeitet…</string>
+    <string name="loading_period_closing">Tagesabschluss wird durchgeführt…</string>
+    <string name="loading_x_report">X-Bericht wird abgerufen…</string>
+    <string name="loading_transactions">Transaktionen werden geladen…</string>
+    <string name="loading_terminal">Terminal wird überprüft…</string>
+    <string name="loading_receipt">Beleg wird abgerufen…</string>
+
+    <!-- Results -->
+    <string name="result_success">Erfolgreich</string>
+    <string name="result_failed">Fehlgeschlagen</string>
+    <string name="result_cancelled">Abgebrochen</string>
+    <string name="result_timeout">Zeitüberschreitung</string>
+
+    <!-- Errors -->
+    <string name="error_unknown">Unbekannter Fehler aufgetreten</string>
+    <string name="error_terminal_not_connected">Terminal nicht verbunden</string>
+    <string name="error_invalid_amount">Ungültiger Betrag</string>
+    <string name="error_transaction_failed">Transaktion fehlgeschlagen</string>
+    <string name="error_connection_failed">Verbindung fehlgeschlagen</string>
+    <string name="error_receipt_not_found">Beleg nicht gefunden</string>
+
+    <!-- Dialog -->
+    <string name="dialog_confirm">Bestätigen</string>
+    <string name="dialog_cancel">Abbrechen</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_close">Schließen</string>
+
+    <!-- Period Closing -->
+    <string name="period_closing_title">Tagesabschlussbericht</string>
+    <string name="period_closing_shift">Schicht: %s</string>
+    <string name="period_closing_total_transactions">Gesamttransaktionen: %d</string>
+    <string name="period_closing_total_amount">Gesamtbetrag: %s</string>
+    <string name="period_closing_total_refunds">Gesamterstattungen: %s</string>
+    <string name="period_closing_net_amount">Nettobetrag: %s</string>
+    <string name="period_closing_success">Tagesabschluss erfolgreich abgeschlossen</string>
+    <string name="x_report_success">Zwischenbericht abgerufen</string>
+    <string name="x_report_title">X-Bericht</string>
+
+    <!-- Transaction History -->
+    <string name="total_transactions">Gesamttransaktionen</string>
+    <string name="total_amount">Gesamtbetrag</string>
+    <string name="no_transactions">Noch keine Transaktionen</string>
+
+    <!-- Transaction Status -->
+    <string name="transaction_status_success">Erfolgreich</string>
+    <string name="transaction_status_failed">Fehlgeschlagen</string>
+    <string name="transaction_status_cancelled">Abgebrochen</string>
+    <string name="transaction_status_pending">Ausstehend</string>
+
+    <!-- Settings -->
+    <string name="settings_terminal_connection">Terminalverbindung</string>
+    <string name="settings_ip_address">IP-Adresse</string>
+    <string name="settings_port">Port</string>
+    <string name="settings_test_connection">Verbindung Testen</string>
+    <string name="settings_terminal_info">Terminalinfo</string>
+    <string name="settings_status">Status</string>
+    <string name="settings_terminal_id">Terminal-ID</string>
+    <string name="settings_software_version">Softwareversion</string>
+    <string name="settings_terminal_operations">Terminaloperationen</string>
+    <string name="settings_startup_terminal">Terminal Starten</string>
+    <string name="settings_repeat_last_message">Letzte Nachricht Wiederholen</string>
+    <string name="settings_discover_terminals">Terminals Suchen</string>
+
+    <!-- Confirm Dialogs -->
+    <string name="confirm_period_closing_title">Tagesabschluss</string>
+    <string name="confirm_period_closing_message">Sind Sie sicher, dass Sie den Tag abschließen möchten?\n\nDiese Aktion kann nicht rückgängig gemacht werden.</string>
+
+    <!-- Payment Result Messages -->
+    <string name="payment_success_message">Transaktion erfolgreich abgeschlossen</string>
+    <string name="payment_transaction_id">Transaktions-ID: %s</string>
+    <string name="payment_amount">Betrag: %s</string>
+    <string name="payment_card">Karte: %s</string>
+    <string name="payment_card_number">Kartennr.: %s</string>
+    <string name="payment_auth_code">Genehmigungscode: %s</string>
+    <string name="last_receipt_title">Letzter Beleg</string>
+
+    <!-- Report Labels -->
+    <string name="label_shift">Schicht: %s</string>
+    <string name="label_total_transactions">Gesamttransaktionen: %d</string>
+    <string name="label_total_sales">Gesamtverkäufe: %s</string>
+    <string name="label_total_refunds">Gesamterstattungen: %s</string>
+    <string name="label_net_amount">Nettobetrag: %s</string>
+
+    <!-- Status -->
+    <string name="status_connected">Verbunden</string>
+    <string name="status_disconnected">Nicht verbunden</string>
+    <string name="status_unknown">Unbekannt</string>
+</resources>

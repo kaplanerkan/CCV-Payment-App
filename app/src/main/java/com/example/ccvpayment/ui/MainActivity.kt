@@ -189,12 +189,12 @@ class MainActivity : AppCompatActivity() {
                     showResultDialog(
                         title = getString(R.string.result_success),
                         message = buildString {
-                            append("Gün sonu başarıyla tamamlandı\n\n")
-                            result.shiftNumber?.let { append("Vardiya: $it\n") }
-                            append("Toplam İşlem: ${result.totalTransactions}\n")
-                            append("Toplam Satış: ${formatMoney(result.totalSalesAmount)}\n")
-                            append("Toplam İade: ${formatMoney(result.totalRefundsAmount)}\n")
-                            append("Net Tutar: ${formatMoney(result.netAmount)}")
+                            append(getString(R.string.period_closing_success)).append("\n\n")
+                            result.shiftNumber?.let { append(getString(R.string.label_shift, it)).append("\n") }
+                            append(getString(R.string.label_total_transactions, result.totalTransactions)).append("\n")
+                            append(getString(R.string.label_total_sales, formatMoney(result.totalSalesAmount))).append("\n")
+                            append(getString(R.string.label_total_refunds, formatMoney(result.totalRefundsAmount))).append("\n")
+                            append(getString(R.string.label_net_amount, formatMoney(result.netAmount)))
                         },
                         isSuccess = true
                     )
@@ -229,14 +229,14 @@ class MainActivity : AppCompatActivity() {
 
                 if (result.success) {
                     showResultDialog(
-                        title = "X-Report",
+                        title = getString(R.string.x_report_title),
                         message = buildString {
-                            append("Ara rapor alındı\n\n")
-                            result.shiftNumber?.let { append("Vardiya: $it\n") }
-                            append("Toplam İşlem: ${result.totalTransactions}\n")
-                            append("Toplam Satış: ${formatMoney(result.totalSalesAmount)}\n")
-                            append("Toplam İade: ${formatMoney(result.totalRefundsAmount)}\n")
-                            append("Net Tutar: ${formatMoney(result.netAmount)}")
+                            append(getString(R.string.x_report_success)).append("\n\n")
+                            result.shiftNumber?.let { append(getString(R.string.label_shift, it)).append("\n") }
+                            append(getString(R.string.label_total_transactions, result.totalTransactions)).append("\n")
+                            append(getString(R.string.label_total_sales, formatMoney(result.totalSalesAmount))).append("\n")
+                            append(getString(R.string.label_total_refunds, formatMoney(result.totalRefundsAmount))).append("\n")
+                            append(getString(R.string.label_net_amount, formatMoney(result.netAmount)))
                         },
                         isSuccess = true
                     )
@@ -262,7 +262,7 @@ class MainActivity : AppCompatActivity() {
      * Son fişi tekrar yazdır
      */
     private fun reprintLastTicket() {
-        showLoading("Fiş alınıyor...")
+        showLoading(getString(R.string.loading_receipt))
 
         ccv.reprintLastTicket(
             onResult = { merchantReceipt, customerReceipt ->
@@ -272,14 +272,14 @@ class MainActivity : AppCompatActivity() {
                     val receipt = customerReceipt ?: merchantReceipt
                     if (receipt != null) {
                         showResultDialog(
-                            title = "Son İşlem Fişi",
+                            title = getString(R.string.last_receipt_title),
                             message = receipt,
                             isSuccess = true
                         )
                     } else {
                         showResultDialog(
                             title = getString(R.string.result_failed),
-                            message = "Fiş bulunamadı",
+                            message = getString(R.string.error_receipt_not_found),
                             isSuccess = false
                         )
                     }
