@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name=".CCVPaymentApp"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_terminal"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.CCVPayment">
+
+        <!-- Ana Activity - CCV Terminal ile entegrasyon için singleTask gerekli -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.CCVPayment.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- CCV ECR Intent Filter - Terminal'den geri dönüş için -->
+            <intent-filter>
+                <action android:name="eu.ccv.service.ECR" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.PaymentActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.CCVPayment.NoActionBar">
+            <intent-filter>
+                <action android:name="eu.ccv.service.ECR" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.TransactionHistoryActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.CCVPayment.NoActionBar" />
+
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.CCVPayment.NoActionBar" />
+
+        <activity
+            android:name=".ui.TerminalSettingsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.CCVPayment.NoActionBar" />
+
+    </application>
+
+</manifest>

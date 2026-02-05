@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors -->
+    <color name="primary">#1E88E5</color>
+    <color name="primary_dark">#1565C0</color>
+    <color name="primary_light">#64B5F6</color>
+
+    <!-- Secondary Colors -->
+    <color name="secondary">#26A69A</color>
+    <color name="secondary_dark">#00897B</color>
+
+    <!-- Background Colors -->
+    <color name="background">#F5F7FA</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_tertiary">#9E9E9E</color>
+
+    <!-- Status Colors -->
+    <color name="status_success">#4CAF50</color>
+    <color name="status_error">#F44336</color>
+    <color name="status_warning">#FF9800</color>
+    <color name="status_info">#2196F3</color>
+
+    <!-- Payment Type Colors -->
+    <color name="payment_sale">#1E88E5</color>
+    <color name="payment_refund">#E53935</color>
+    <color name="payment_reversal">#FF5722</color>
+    <color name="payment_authorise">#7E57C2</color>
+
+    <!-- Icon Background Colors -->
+    <color name="icon_background_primary">#E3F2FD</color>
+    <color name="icon_background_secondary">#E0F2F1</color>
+    <color name="icon_background_success">#E8F5E9</color>
+    <color name="icon_background_warning">#FFF3E0</color>
+    <color name="icon_background_error">#FFEBEE</color>
+    <color name="icon_background_info">#E3F2FD</color>
+    <color name="icon_background_neutral">#F5F5F5</color>
+
+    <!-- Status Indicator Colors -->
+    <color name="status_indicator_connected">#4CAF50</color>
+    <color name="status_indicator_disconnected">#F44336</color>
+    <color name="status_indicator_pending">#FFC107</color>
+
+    <!-- Divider -->
+    <color name="divider">#E0E0E0</color>
+
+    <!-- Numpad -->
+    <color name="numpad_button">#F5F5F5</color>
+    <color name="numpad_button_pressed">#E0E0E0</color>
+</resources>
