@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.ccvpayment.R
 import com.example.ccvpayment.databinding.ActivityMainBinding
+import com.example.ccvpayment.helper.CCVLogger
 import com.example.ccvpayment.helper.CCVPaymentManager
 import com.example.ccvpayment.model.Money
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -55,6 +56,27 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkTerminalStatus()
+    }
+
+    /**
+     * Handle new intents when activity is already running (singleTask mode).
+     * This is called when the terminal sends back an ECR callback.
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+
+        // Log the ECR callback
+        CCVLogger.logEvent("ECR_CALLBACK", mapOf(
+            "action" to intent.action,
+            "extras" to intent.extras?.keySet()?.map { it to intent.extras?.get(it) }?.toMap()
+        ))
+
+        // ECR intent geldiğinde terminal durumunu güncelle
+        if (intent.action == "eu.ccv.service.ECR") {
+            CCVLogger.logEvent("ECR_RECEIVED", "Terminal callback received in MainActivity")
+            checkTerminalStatus()
+        }
     }
 
     private fun setupToolbar() {

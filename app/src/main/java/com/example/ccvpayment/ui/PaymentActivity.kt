@@ -1,13 +1,18 @@
 package com.example.ccvpayment.ui
 
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.ccvpayment.R
 import com.example.ccvpayment.databinding.ActivityPaymentBinding
+import com.example.ccvpayment.helper.CCVLogger
 import com.example.ccvpayment.helper.CCVPaymentManager
 import com.example.ccvpayment.model.TransactionStatus
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -235,13 +240,43 @@ class PaymentActivity : AppCompatActivity() {
      *
      * This ensures the user returns to our app after the payment flow
      * finishes on the terminal's payment screen.
+     *
+     * Uses multiple strategies for reliability:
+     * 1. moveTaskToFront() - most reliable on Android 10+
+     * 2. Intent with REORDER_TO_FRONT flag - fallback
      */
     private fun bringToForeground() {
-        val intent = Intent(this, PaymentActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        CCVLogger.logEvent("BRING_TO_FOREGROUND", "Attempting to bring PaymentActivity to foreground")
+
+        try {
+            // Strategy 1: Use ActivityManager.moveTaskToFront (most reliable)
+            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            activityManager.moveTaskToFront(taskId, ActivityManager.MOVE_TASK_WITH_HOME)
+            CCVLogger.logEvent("BRING_TO_FOREGROUND", "moveTaskToFront called successfully")
+        } catch (e: Exception) {
+            CCVLogger.logError("BRING_TO_FOREGROUND", "MOVE_TASK_FAILED", e.message, e)
         }
-        startActivity(intent)
+
+        // Strategy 2: Use Intent as backup (with slight delay to ensure task switch completes)
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                val intent = Intent(this, PaymentActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(intent)
+                CCVLogger.logEvent("BRING_TO_FOREGROUND", "Backup intent launched")
+            } catch (e: Exception) {
+                CCVLogger.logError("BRING_TO_FOREGROUND", "INTENT_FAILED", e.message, e)
+            }
+        }, 100)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        CCVLogger.logEvent("ON_NEW_INTENT", "PaymentActivity received new intent: ${intent.action}")
+        setIntent(intent)
     }
 
     private fun showSuccessDialog(result: com.example.ccvpayment.model.PaymentResult) {

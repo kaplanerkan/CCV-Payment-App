@@ -5,6 +5,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- Android 11+ için CCV Payment intent görünürlüğü -->
+    <queries>
+        <intent>
+            <action android:name="eu.ccv.payment.action.SHOW_PAYMENT" />
+        </intent>
+    </queries>
+
     <application
         android:name=".CCVPaymentApp"
         android:allowBackup="true"
@@ -35,15 +42,12 @@
         <activity
             android:name=".ui.PaymentActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:launchMode="singleTask"
+            android:exported="false"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.CCVPayment.NoActionBar">
-            <intent-filter>
-                <action android:name="eu.ccv.service.ECR" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.CCVPayment.NoActionBar" />
+
+        <!-- ECR callback sadece MainActivity'ye gelsin, oradan PaymentActivity'ye yönlendirilir -->
 
         <activity
             android:name=".ui.TransactionHistoryActivity"
