@@ -16,10 +16,24 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 /**
- * Terminal Helper
+ * Terminal Helper - Manages terminal connection and status operations.
  *
- * Terminal bağlantısı, keşfi ve durum sorgulama işlemleri için yardımcı sınıf.
- * CCV mAPI SDK ile gerçek entegrasyon.
+ * This singleton class provides methods for connecting to CCV payment
+ * terminals, checking their status, and performing terminal-specific
+ * operations through the CCV mAPI SDK.
+ *
+ * Features:
+ * - Terminal connection management
+ * - Terminal discovery on network
+ * - Status checking
+ * - Terminal startup/initialization
+ * - Repeat last message
+ *
+ * Both callback-based and coroutine-based APIs are available.
+ *
+ * @author Erkan Kaplan
+ * @date 2026-02-05
+ * @since 1.0
  */
 class TerminalHelper private constructor() {
 
@@ -174,6 +188,8 @@ class TerminalHelper private constructor() {
      * Terminal durumunu sorgula
      */
     fun getStatus(terminal: ExternalTerminal, callback: TerminalStatusCallback) {
+        CCVLogger.logTerminalRequest("STATUS", terminal)
+
         val delegate = object : TerminalDelegate {
             override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {}
             override fun printMerchantReceiptAndSignature(receipt: PaymentReceipt?) {}
@@ -185,18 +201,23 @@ class TerminalHelper private constructor() {
             override fun cardUID(cardUID: String?) {}
 
             override fun onPaymentAdministrationSuccess(result: PaymentAdministrationResult<*>?) {
+                CCVLogger.logRawAdminResult(result)
                 val info = terminalInfoMap[terminal]
-                callback.onStatusReceived(TerminalStatus(
+                val status = TerminalStatus(
                     isConnected = true,
                     terminalId = result?.terminalId(),
                     softwareVersion = null,
                     ipAddress = info?.ipAddress ?: LOCAL_TERMINAL_IP,
                     printerStatus = PrinterStatus.AVAILABLE
-                ))
+                )
+                CCVLogger.logTerminalStatusResponse(status)
+                callback.onStatusReceived(status)
             }
 
             override fun onError(error: Error?) {
-                callback.onError(error?.mapiError()?.description() ?: "Status query failed")
+                val errorMessage = error?.mapiError()?.description() ?: "Status query failed"
+                CCVLogger.logError("STATUS", error?.mapiError()?.name, errorMessage)
+                callback.onError(errorMessage)
             }
         }
 
@@ -224,7 +245,8 @@ class TerminalHelper private constructor() {
      * Terminal başlat (Startup)
      */
     fun startup(terminal: ExternalTerminal, callback: TerminalOperationCallback) {
-        val delegate = createTerminalDelegate(callback)
+        CCVLogger.logTerminalRequest("STARTUP", terminal)
+        val delegate = createTerminalDelegate("STARTUP", callback)
         terminalService.startup(terminal, delegate)
     }
 
@@ -235,7 +257,8 @@ class TerminalHelper private constructor() {
         terminal: ExternalTerminal,
         callback: TerminalOperationCallback
     ) {
-        val delegate = createTerminalDelegate(callback)
+        CCVLogger.logTerminalRequest("ACTIVATE_TERMINAL", terminal)
+        val delegate = createTerminalDelegate("ACTIVATE_TERMINAL", callback)
         terminalService.activateTerminal(terminal, delegate)
     }
 
@@ -243,6 +266,7 @@ class TerminalHelper private constructor() {
      * Factory Reset - Not available in this SDK version
      */
     fun factoryReset(terminal: ExternalTerminal, callback: TerminalOperationCallback) {
+        CCVLogger.logError("FACTORY_RESET", "NOT_AVAILABLE", "Factory reset not available in this SDK version")
         callback.onError("Factory reset not available in this SDK version")
     }
 
@@ -250,7 +274,8 @@ class TerminalHelper private constructor() {
      * Son mesajı tekrarla
      */
     fun repeatLastMessage(terminal: ExternalTerminal, callback: TerminalOperationCallback) {
-        val delegate = createTerminalDelegate(callback)
+        CCVLogger.logTerminalRequest("REPEAT_LAST_MESSAGE", terminal)
+        val delegate = createTerminalDelegate("REPEAT_LAST_MESSAGE", callback)
         terminalService.repeatLastMessage(terminal, delegate)
     }
 
@@ -258,7 +283,8 @@ class TerminalHelper private constructor() {
      * Son fişi al
      */
     fun retrieveLastTicket(terminal: ExternalTerminal, callback: TerminalOperationCallback) {
-        val delegate = createTerminalDelegate(callback)
+        CCVLogger.logTerminalRequest("RETRIEVE_LAST_TICKET", terminal)
+        val delegate = createTerminalDelegate("RETRIEVE_LAST_TICKET", callback)
         terminalService.retrieveLastTicket(terminal, delegate)
     }
 
@@ -266,7 +292,8 @@ class TerminalHelper private constructor() {
      * Payment Recovery
      */
     fun recoverPayment(terminal: ExternalTerminal, paymentRequestId: String, callback: TerminalOperationCallback) {
-        val delegate = createTerminalDelegate(callback)
+        CCVLogger.logTerminalRequest("RECOVER_PAYMENT", terminal, mapOf("paymentRequestId" to paymentRequestId))
+        val delegate = createTerminalDelegate("RECOVER_PAYMENT", callback)
         terminalService.recoverPayment(terminal, paymentRequestId, delegate)
     }
 
@@ -274,7 +301,8 @@ class TerminalHelper private constructor() {
      * Period Closing (Z-Report)
      */
     fun periodClosing(terminal: ExternalTerminal, callback: TerminalOperationCallback) {
-        val delegate = createTerminalDelegate(callback)
+        CCVLogger.logTerminalRequest("PERIOD_CLOSING", terminal)
+        val delegate = createTerminalDelegate("PERIOD_CLOSING", callback)
         terminalService.periodClosing(terminal, delegate)
     }
 
@@ -282,27 +310,50 @@ class TerminalHelper private constructor() {
      * Transaction Overview
      */
     fun transactionOverview(terminal: ExternalTerminal, callback: TerminalOperationCallback) {
-        val delegate = createTerminalDelegate(callback)
+        CCVLogger.logTerminalRequest("TRANSACTION_OVERVIEW", terminal)
+        val delegate = createTerminalDelegate("TRANSACTION_OVERVIEW", callback)
         terminalService.transactionOverview(terminal, delegate)
     }
 
-    private fun createTerminalDelegate(callback: TerminalOperationCallback): TerminalDelegate {
+    private fun createTerminalDelegate(operation: String, callback: TerminalOperationCallback): TerminalDelegate {
         return object : TerminalDelegate {
-            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {}
-            override fun printMerchantReceiptAndSignature(receipt: PaymentReceipt?) {}
-            override fun printCustomerReceiptAndSignature(receipt: PaymentReceipt?) {}
-            override fun printJournalReceipt(receipt: PaymentReceipt?) {}
-            override fun storeEJournal(journal: String?) {}
-            override fun configData(config: ConfigData?) {}
-            override fun eReceipt(eReceiptRequest: EReceiptRequest?) {}
-            override fun cardUID(cardUID: String?) {}
+            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {
+                lines?.forEach { line ->
+                    CCVLogger.logEvent("TERMINAL_OUTPUT", line.toString())
+                }
+            }
+            override fun printMerchantReceiptAndSignature(receipt: PaymentReceipt?) {
+                CCVLogger.logEvent("MERCHANT_RECEIPT", "Receipt received for $operation")
+            }
+            override fun printCustomerReceiptAndSignature(receipt: PaymentReceipt?) {
+                CCVLogger.logEvent("CUSTOMER_RECEIPT", "Receipt received for $operation")
+            }
+            override fun printJournalReceipt(receipt: PaymentReceipt?) {
+                CCVLogger.logEvent("JOURNAL_RECEIPT", "Journal receipt received for $operation")
+            }
+            override fun storeEJournal(journal: String?) {
+                CCVLogger.logEvent("E_JOURNAL", "E-Journal stored for $operation")
+            }
+            override fun configData(config: ConfigData?) {
+                CCVLogger.logEvent("CONFIG_DATA", config?.toString())
+            }
+            override fun eReceipt(eReceiptRequest: EReceiptRequest?) {
+                CCVLogger.logEvent("E_RECEIPT", eReceiptRequest?.toString())
+            }
+            override fun cardUID(cardUID: String?) {
+                CCVLogger.logEvent("CARD_UID", cardUID)
+            }
 
             override fun onPaymentAdministrationSuccess(result: PaymentAdministrationResult<*>?) {
+                CCVLogger.logRawAdminResult(result)
+                CCVLogger.logEvent("$operation SUCCESS", result?.toString())
                 callback.onSuccess(result?.toString())
             }
 
             override fun onError(error: Error?) {
-                callback.onError(error?.mapiError()?.description() ?: "Operation failed")
+                val errorMessage = error?.mapiError()?.description() ?: "Operation failed"
+                CCVLogger.logError(operation, error?.mapiError()?.name, errorMessage)
+                callback.onError(errorMessage)
             }
         }
     }

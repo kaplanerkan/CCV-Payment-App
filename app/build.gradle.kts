@@ -36,6 +36,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     packaging {
@@ -77,4 +78,10 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
+
+    // Gson for JSON logging
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // LeakCanary - Memory leak detection (only in debug builds)
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.13")
 }

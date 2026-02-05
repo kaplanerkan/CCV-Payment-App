@@ -127,4 +127,16 @@
     <string name="status_connected">Bağlı</string>
     <string name="status_disconnected">Bağlı Değil</string>
     <string name="status_unknown">Bilinmiyor</string>
+
+    <!-- Popup Messages -->
+    <string name="connection_success">Bağlantı başarılı!</string>
+    <string name="terminal_started_success">Terminal başarıyla başlatıldı</string>
+    <string name="last_message_repeated">Son mesaj tekrarlandı</string>
+    <string name="loading_starting_terminal">Terminal başlatılıyor…</string>
+    <string name="loading_processing">İşlem yapılıyor…</string>
+    <string name="loading_scanning_terminals">Terminaller taranıyor…</string>
+    <string name="discovery_result">Sonuç</string>
+    <string name="no_terminal_found">Hiç terminal bulunamadı</string>
+    <string name="terminals_found">Bulunan Terminaller (%d)</string>
+    <string name="select_first">İlkini Seç</string>
 </resources>

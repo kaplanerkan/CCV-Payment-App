@@ -1,5 +1,7 @@
 package com.example.ccvpayment.ui
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -17,10 +19,21 @@ import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 /**
- * Ödeme Activity
- * 
- * Ödeme, iade ve ön provizyon işlemlerini gerçekleştirir.
- * Numpad ile tutar girişi yapılır.
+ * Payment Activity - Main screen for payment operations.
+ *
+ * This activity provides a numpad interface for entering payment amounts
+ * and initiating sale, refund, and pre-authorization transactions.
+ *
+ * Features:
+ * - Numpad for amount entry
+ * - Payment type selection (Sale, Refund, Pre-Auth)
+ * - Loading overlay during payment processing
+ * - Success/error dialogs with transaction details
+ * - Automatic return to foreground after payment completes
+ *
+ * @author Erkan Kaplan
+ * @date 2026-02-05
+ * @since 1.0
  */
 class PaymentActivity : AppCompatActivity() {
 
@@ -160,14 +173,17 @@ class PaymentActivity : AppCompatActivity() {
 
     private fun processPayment() {
         val amount = BigDecimal(currentAmount).divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
-        
+
         val loadingMessage = when (paymentType) {
             TYPE_SALE -> getString(R.string.loading_payment)
             TYPE_REFUND -> getString(R.string.loading_refund)
             else -> getString(R.string.loading_please_wait)
         }
-        
+
         showLoading(loadingMessage)
+
+        // Launch payment screen on Android 10+ devices
+        launchPaymentScreen()
 
         lifecycleScope.launch {
             try {
@@ -175,6 +191,9 @@ class PaymentActivity : AppCompatActivity() {
                     TYPE_REFUND -> ccv.refundAsync(amount)
                     else -> ccv.makePaymentAsync(amount)
                 }
+
+                // Bring this activity back to foreground after payment completes
+                bringToForeground()
 
                 hideLoading()
 
@@ -184,10 +203,45 @@ class PaymentActivity : AppCompatActivity() {
                     showErrorDialog(result.errorMessage ?: getString(R.string.error_transaction_failed))
                 }
             } catch (e: Exception) {
+                // Bring this activity back to foreground on error
+                bringToForeground()
+
                 hideLoading()
                 showErrorDialog(e.message ?: getString(R.string.error_unknown))
             }
         }
+    }
+
+    /**
+     * Launch the CCV payment screen on Android 10+ devices.
+     *
+     * On Android 10 and later, apps cannot start activities from the background.
+     * The CCV terminal app provides an intent action to show the payment UI.
+     */
+    private fun launchPaymentScreen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val intent = Intent().apply {
+                action = "eu.ccv.payment.action.SHOW_PAYMENT"
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            }
+        }
+    }
+
+    /**
+     * Bring this activity back to the foreground after payment completes.
+     *
+     * This ensures the user returns to our app after the payment flow
+     * finishes on the terminal's payment screen.
+     */
+    private fun bringToForeground() {
+        val intent = Intent(this, PaymentActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        startActivity(intent)
     }
 
     private fun showSuccessDialog(result: com.example.ccvpayment.model.PaymentResult) {

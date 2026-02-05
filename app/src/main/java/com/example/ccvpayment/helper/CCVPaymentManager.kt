@@ -6,10 +6,22 @@ import java.math.BigDecimal
 import java.util.UUID
 
 /**
- * CCV Payment Manager
+ * CCV Payment Manager - Main facade class for payment operations.
  *
- * Tüm CCV ödeme işlemlerini yöneten ana facade sınıfı.
- * TerminalHelper, PaymentHelper ve TransactionHelper'ı birleştirir.
+ * This singleton class provides a unified interface for all CCV payment
+ * operations. It combines TerminalHelper, PaymentHelper, and TransactionHelper
+ * to provide comprehensive payment terminal functionality.
+ *
+ * Features:
+ * - Terminal connection and status management
+ * - Payment processing (sale, refund, reversal)
+ * - Pre-authorization and capture
+ * - Period closing (Z-Report, X-Report)
+ * - Transaction history and receipts
+ *
+ * @author Erkan Kaplan
+ * @date 2026-02-05
+ * @since 1.0
  */
 class CCVPaymentManager private constructor() {
 

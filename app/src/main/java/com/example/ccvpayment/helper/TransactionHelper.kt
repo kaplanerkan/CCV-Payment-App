@@ -18,10 +18,24 @@ import java.util.Date
 import kotlin.coroutines.resume
 
 /**
- * Transaction Helper
+ * Transaction Helper - Handles reporting and receipt operations.
  *
- * Dönem kapama (Z-Raporu), X-Raporu, işlem geçmişi ve fiş yazdırma işlemleri için yardımcı sınıf.
- * CCV mAPI SDK ile gerçek entegrasyon.
+ * This singleton class provides methods for period closing (Z-Report),
+ * interim reports (X-Report), transaction history retrieval, and
+ * receipt reprinting through the CCV mAPI SDK.
+ *
+ * Features:
+ * - Period closing (Z-Report) - closes the shift
+ * - X-Report - interim report without closing shift
+ * - Transaction overview/history
+ * - Last ticket reprinting
+ * - Open pre-authorization retrieval
+ *
+ * Both callback-based and coroutine-based APIs are available.
+ *
+ * @author Erkan Kaplan
+ * @date 2026-02-05
+ * @since 1.0
  */
 class TransactionHelper private constructor() {
 
@@ -61,18 +75,26 @@ class TransactionHelper private constructor() {
      * Dönem Kapama (Z-Raporu)
      */
     fun periodClosing(terminal: ExternalTerminal, callback: PeriodClosingCallback) {
+        CCVLogger.logTerminalRequest("PERIOD_CLOSING (Z-Report)", terminal)
+
         val delegate = object : TerminalDelegate {
             private var merchantReceipt: String? = null
             private var customerReceipt: String? = null
 
-            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {}
+            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {
+                lines?.forEach { line ->
+                    CCVLogger.logEvent("TERMINAL_OUTPUT", line.toString())
+                }
+            }
 
             override fun printMerchantReceiptAndSignature(receipt: PaymentReceipt?) {
                 merchantReceipt = receipt?.plainTextLines()?.joinToString("\n") { it.toString() }
+                CCVLogger.logEvent("Z_REPORT_MERCHANT_RECEIPT", "Receipt received")
             }
 
             override fun printCustomerReceiptAndSignature(receipt: PaymentReceipt?) {
                 customerReceipt = receipt?.plainTextLines()?.joinToString("\n") { it.toString() }
+                CCVLogger.logEvent("Z_REPORT_CUSTOMER_RECEIPT", "Receipt received")
             }
 
             override fun printJournalReceipt(receipt: PaymentReceipt?) {}
@@ -82,12 +104,14 @@ class TransactionHelper private constructor() {
             override fun cardUID(cardUID: String?) {}
 
             override fun onPaymentAdministrationSuccess(result: PaymentAdministrationResult<*>?) {
+                CCVLogger.logRawAdminResult(result)
+
                 val receiptText = merchantReceipt ?: customerReceipt
                 if (receiptText != null) {
                     callback.onReceiptReady(receiptText)
                 }
 
-                callback.onSuccess(PeriodClosingResult(
+                val periodResult = PeriodClosingResult(
                     success = true,
                     shiftNumber = null,
                     totalTransactions = 0,
@@ -97,11 +121,16 @@ class TransactionHelper private constructor() {
                     totalRefundsAmount = null,
                     netAmount = null,
                     receipt = receiptText
-                ))
+                )
+
+                CCVLogger.logPeriodClosingResponse(true, periodResult)
+                callback.onSuccess(periodResult)
             }
 
             override fun onError(error: Error?) {
-                callback.onError(error?.mapiError()?.description() ?: "Period closing failed")
+                val errorMessage = error?.mapiError()?.description() ?: "Period closing failed"
+                CCVLogger.logError("PERIOD_CLOSING", error?.mapiError()?.name, errorMessage)
+                callback.onError(errorMessage)
             }
         }
 
@@ -112,18 +141,26 @@ class TransactionHelper private constructor() {
      * Kısmi Dönem Kapama (X-Raporu) - Transaction Overview kullanılır
      */
     fun partialPeriodClosing(terminal: ExternalTerminal, callback: PeriodClosingCallback) {
+        CCVLogger.logTerminalRequest("PARTIAL_PERIOD_CLOSING (X-Report)", terminal)
+
         val delegate = object : TerminalDelegate {
             private var receiptText: String? = null
 
-            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {}
+            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {
+                lines?.forEach { line ->
+                    CCVLogger.logEvent("TERMINAL_OUTPUT", line.toString())
+                }
+            }
 
             override fun printMerchantReceiptAndSignature(receipt: PaymentReceipt?) {
                 receiptText = receipt?.plainTextLines()?.joinToString("\n") { it.toString() }
+                CCVLogger.logEvent("X_REPORT_MERCHANT_RECEIPT", "Receipt received")
             }
 
             override fun printCustomerReceiptAndSignature(receipt: PaymentReceipt?) {
                 if (receiptText == null) {
                     receiptText = receipt?.plainTextLines()?.joinToString("\n") { it.toString() }
+                    CCVLogger.logEvent("X_REPORT_CUSTOMER_RECEIPT", "Receipt received")
                 }
             }
 
@@ -134,11 +171,13 @@ class TransactionHelper private constructor() {
             override fun cardUID(cardUID: String?) {}
 
             override fun onPaymentAdministrationSuccess(result: PaymentAdministrationResult<*>?) {
+                CCVLogger.logRawAdminResult(result)
+
                 if (receiptText != null) {
                     callback.onReceiptReady(receiptText!!)
                 }
 
-                callback.onSuccess(PeriodClosingResult(
+                val periodResult = PeriodClosingResult(
                     success = true,
                     shiftNumber = null,
                     totalTransactions = 0,
@@ -148,11 +187,16 @@ class TransactionHelper private constructor() {
                     totalRefundsAmount = null,
                     netAmount = null,
                     receipt = receiptText
-                ))
+                )
+
+                CCVLogger.logPeriodClosingResponse(false, periodResult)
+                callback.onSuccess(periodResult)
             }
 
             override fun onError(error: Error?) {
-                callback.onError(error?.mapiError()?.description() ?: "X-Report failed")
+                val errorMessage = error?.mapiError()?.description() ?: "X-Report failed"
+                CCVLogger.logError("X_REPORT", error?.mapiError()?.name, errorMessage)
+                callback.onError(errorMessage)
             }
         }
 
@@ -167,6 +211,8 @@ class TransactionHelper private constructor() {
         shiftNumber: Int? = null,
         callback: TransactionOverviewCallback
     ) {
+        CCVLogger.logTerminalRequest("TRANSACTION_OVERVIEW", terminal, mapOf("shiftNumber" to shiftNumber))
+
         val terminalWithShift = if (shiftNumber != null) {
             terminal.shiftNumber(shiftNumber)
         } else {
@@ -174,7 +220,11 @@ class TransactionHelper private constructor() {
         }
 
         val delegate = object : TerminalDelegate {
-            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {}
+            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {
+                lines?.forEach { line ->
+                    CCVLogger.logEvent("TERMINAL_OUTPUT", line.toString())
+                }
+            }
             override fun printMerchantReceiptAndSignature(receipt: PaymentReceipt?) {}
             override fun printCustomerReceiptAndSignature(receipt: PaymentReceipt?) {}
             override fun printJournalReceipt(receipt: PaymentReceipt?) {}
@@ -184,15 +234,22 @@ class TransactionHelper private constructor() {
             override fun cardUID(cardUID: String?) {}
 
             override fun onPaymentAdministrationSuccess(result: PaymentAdministrationResult<*>?) {
-                callback.onSuccess(TransactionOverviewResult(
+                CCVLogger.logRawAdminResult(result)
+
+                val overviewResult = TransactionOverviewResult(
                     success = true,
-                    shiftNumber = null ?: shiftNumber,
+                    shiftNumber = shiftNumber,
                     transactions = emptyList()
-                ))
+                )
+
+                CCVLogger.logTransactionOverviewResponse(overviewResult)
+                callback.onSuccess(overviewResult)
             }
 
             override fun onError(error: Error?) {
-                callback.onError(error?.mapiError()?.description() ?: "Transaction overview failed")
+                val errorMessage = error?.mapiError()?.description() ?: "Transaction overview failed"
+                CCVLogger.logError("TRANSACTION_OVERVIEW", error?.mapiError()?.name, errorMessage)
+                callback.onError(errorMessage)
             }
         }
 
@@ -218,18 +275,26 @@ class TransactionHelper private constructor() {
      * Son Fişi Tekrar Yazdır
      */
     fun reprintLastTicket(terminal: ExternalTerminal, callback: LastTicketCallback) {
+        CCVLogger.logTerminalRequest("RETRIEVE_LAST_TICKET", terminal)
+
         val delegate = object : TerminalDelegate {
             private var merchantReceipt: String? = null
             private var customerReceipt: String? = null
 
-            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {}
+            override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {
+                lines?.forEach { line ->
+                    CCVLogger.logEvent("TERMINAL_OUTPUT", line.toString())
+                }
+            }
 
             override fun printMerchantReceiptAndSignature(receipt: PaymentReceipt?) {
                 merchantReceipt = receipt?.plainTextLines()?.joinToString("\n") { it.toString() }
+                CCVLogger.logEvent("LAST_TICKET_MERCHANT_RECEIPT", "Receipt received")
             }
 
             override fun printCustomerReceiptAndSignature(receipt: PaymentReceipt?) {
                 customerReceipt = receipt?.plainTextLines()?.joinToString("\n") { it.toString() }
+                CCVLogger.logEvent("LAST_TICKET_CUSTOMER_RECEIPT", "Receipt received")
             }
 
             override fun printJournalReceipt(receipt: PaymentReceipt?) {}
@@ -239,11 +304,18 @@ class TransactionHelper private constructor() {
             override fun cardUID(cardUID: String?) {}
 
             override fun onPaymentAdministrationSuccess(result: PaymentAdministrationResult<*>?) {
+                CCVLogger.logRawAdminResult(result)
+                CCVLogger.logEvent("LAST_TICKET_SUCCESS", mapOf(
+                    "hasMerchantReceipt" to (merchantReceipt != null),
+                    "hasCustomerReceipt" to (customerReceipt != null)
+                ))
                 callback.onSuccess(merchantReceipt, customerReceipt)
             }
 
             override fun onError(error: Error?) {
-                callback.onError(error?.mapiError()?.description() ?: "Retrieve last ticket failed")
+                val errorMessage = error?.mapiError()?.description() ?: "Retrieve last ticket failed"
+                CCVLogger.logError("RETRIEVE_LAST_TICKET", error?.mapiError()?.name, errorMessage)
+                callback.onError(errorMessage)
             }
         }
 

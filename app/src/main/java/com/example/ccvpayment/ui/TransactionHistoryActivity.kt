@@ -26,9 +26,21 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * İşlem Geçmişi Activity
+ * Transaction History Activity - Displays completed transactions.
  *
- * Tüm yapılan işlemleri listeler.
+ * This activity shows a list of all transactions processed during
+ * the current shift, including sales, refunds, and other operations.
+ *
+ * Features:
+ * - List of transactions with details
+ * - Transaction type icons (sale, refund)
+ * - Status indicators (success, failed)
+ * - Summary totals (count, amount)
+ * - Empty state handling
+ *
+ * @author Erkan Kaplan
+ * @date 2026-02-05
+ * @since 1.0
  */
 class TransactionHistoryActivity : AppCompatActivity() {
 

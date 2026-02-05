@@ -2,6 +2,14 @@
 
 [![Türkçe](https://img.shields.io/badge/Dil-Türkçe-red)](README.TR.md)
 
+> **⚠️ Important Notice**
+>
+> This project only works if you have a **CCV Debug POS device**. The application requires a physical CCV terminal with debug mode enabled for testing and development. To obtain a Debug POS device, please contact CCV directly.
+>
+> **Contact:** [CCV Developer Portal](https://developer.myccv.eu/) | [CCV Website](https://www.ccv.eu/)
+
+---
+
 Android payment terminal integration application. Manages POS terminal operations using CCV mAPI SDK.
 
 ## Requirements

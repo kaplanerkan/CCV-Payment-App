@@ -25,10 +25,25 @@ import java.util.Locale
 import kotlin.coroutines.resume
 
 /**
- * Payment Helper
+ * Payment Helper - Handles payment transaction operations.
  *
- * Ödeme işlemleri (satış, iade, iptal, provizyon) için yardımcı sınıf.
- * CCV mAPI SDK ile gerçek entegrasyon.
+ * This singleton class provides methods for executing various payment
+ * operations through the CCV mAPI SDK, including sales, refunds,
+ * reversals, and pre-authorizations.
+ *
+ * Features:
+ * - Sale transactions (SALE)
+ * - Refund transactions (REFUND)
+ * - Reversal/void transactions (VOID)
+ * - Pre-authorization (RESERVATION)
+ * - Capture after pre-authorization
+ * - Payment abort
+ *
+ * Both callback-based and coroutine-based APIs are available.
+ *
+ * @author Erkan Kaplan
+ * @date 2026-02-05
+ * @since 1.0
  */
 class PaymentHelper private constructor() {
 
@@ -71,13 +86,19 @@ class PaymentHelper private constructor() {
         callback: PaymentCallback,
         receiptMode: ReceiptMode = ReceiptMode.RECEIPTS_IN_RESPONSE
     ) {
+        // Log outgoing request
+        CCVLogger.logPaymentRequest("SALE", terminal, request)
+
         val payment = Payment.builder()
             .type(Payment.Type.SALE)
             .amount(eu.ccvlab.mapi.core.payment.Money(request.amount.amount, request.amount.currency))
             .posTimestamp(posTimestampFormatter.format(Date()))
             .build()
 
-        val delegate = createPaymentDelegate(request.requestId, callback)
+        // Log raw SDK payment object
+        CCVLogger.logRawPayment(payment)
+
+        val delegate = createPaymentDelegate(request.requestId, "SALE", callback)
         paymentService.payment(terminal, payment, delegate)
     }
 
@@ -89,13 +110,19 @@ class PaymentHelper private constructor() {
         request: RefundRequest,
         callback: PaymentCallback
     ) {
+        // Log outgoing request
+        CCVLogger.logRefundRequest(terminal, request)
+
         val payment = Payment.builder()
             .type(Payment.Type.REFUND)
             .amount(eu.ccvlab.mapi.core.payment.Money(request.amount.amount, request.amount.currency))
             .posTimestamp(posTimestampFormatter.format(Date()))
             .build()
 
-        val delegate = createPaymentDelegate(request.requestId, callback)
+        // Log raw SDK payment object
+        CCVLogger.logRawPayment(payment)
+
+        val delegate = createPaymentDelegate(request.requestId, "REFUND", callback)
         paymentService.payment(terminal, payment, delegate)
     }
 
@@ -107,6 +134,9 @@ class PaymentHelper private constructor() {
         request: ReversalRequest,
         callback: PaymentCallback
     ) {
+        // Log outgoing request
+        CCVLogger.logReversalRequest(terminal, request)
+
         val paymentBuilder = Payment.builder()
             .type(Payment.Type.VOID)
             .posTimestamp(posTimestampFormatter.format(Date()))
@@ -115,8 +145,13 @@ class PaymentHelper private constructor() {
             paymentBuilder.amount(eu.ccvlab.mapi.core.payment.Money(it.amount, it.currency))
         }
 
-        val delegate = createPaymentDelegate(request.originalRequestId, callback)
-        paymentService.payment(terminal, paymentBuilder.build(), delegate)
+        val payment = paymentBuilder.build()
+
+        // Log raw SDK payment object
+        CCVLogger.logRawPayment(payment)
+
+        val delegate = createPaymentDelegate(request.originalRequestId, "REVERSAL", callback)
+        paymentService.payment(terminal, payment, delegate)
     }
 
     /**
@@ -127,13 +162,19 @@ class PaymentHelper private constructor() {
         request: PaymentRequest,
         callback: PaymentCallback
     ) {
+        // Log outgoing request
+        CCVLogger.logPaymentRequest("AUTHORISE", terminal, request)
+
         val payment = Payment.builder()
             .type(Payment.Type.RESERVATION)
             .amount(eu.ccvlab.mapi.core.payment.Money(request.amount.amount, request.amount.currency))
             .posTimestamp(posTimestampFormatter.format(Date()))
             .build()
 
-        val delegate = createPaymentDelegate(request.requestId, callback)
+        // Log raw SDK payment object
+        CCVLogger.logRawPayment(payment)
+
+        val delegate = createPaymentDelegate(request.requestId, "AUTHORISE", callback)
         paymentService.reservation(terminal, payment, delegate)
     }
 
@@ -148,6 +189,14 @@ class PaymentHelper private constructor() {
         approvalCode: String? = null,
         token: String? = null
     ) {
+        // Log outgoing request
+        CCVLogger.logTerminalRequest("CAPTURE", terminal, mapOf(
+            "originalRequestId" to originalRequestId,
+            "amount" to amount.formatted(),
+            "approvalCode" to approvalCode,
+            "token" to token
+        ))
+
         val payment = Payment.builder()
             .type(Payment.Type.SALE)
             .amount(eu.ccvlab.mapi.core.payment.Money(amount.amount, amount.currency))
@@ -156,7 +205,10 @@ class PaymentHelper private constructor() {
             .posTimestamp(posTimestampFormatter.format(Date()))
             .build()
 
-        val delegate = createPaymentDelegate(originalRequestId, callback)
+        // Log raw SDK payment object
+        CCVLogger.logRawPayment(payment)
+
+        val delegate = createPaymentDelegate(originalRequestId, "CAPTURE", callback)
         paymentService.payment(terminal, payment, delegate)
     }
 
@@ -176,6 +228,7 @@ class PaymentHelper private constructor() {
      * Devam Eden Ödemeyi Durdur (Abort)
      */
     fun stopPayment(terminal: ExternalTerminal, callback: PaymentCallback) {
+        CCVLogger.logTerminalRequest("ABORT", terminal)
         val delegate = createTerminalDelegate(callback)
         paymentService.abort(terminal, delegate)
     }
@@ -218,30 +271,36 @@ class PaymentHelper private constructor() {
     /**
      * PaymentDelegate oluştur
      */
-    private fun createPaymentDelegate(requestId: String, callback: PaymentCallback): PaymentDelegate {
+    private fun createPaymentDelegate(requestId: String, operation: String, callback: PaymentCallback): PaymentDelegate {
         return object : PaymentDelegate {
             private var merchantReceipt: String? = null
             private var customerReceipt: String? = null
 
             override fun showTerminalOutputLines(lines: MutableList<TextLine>?) {
                 lines?.forEach { line ->
+                    CCVLogger.logEvent("TERMINAL_OUTPUT", line.toString())
                     callback.onDisplayMessage(line.toString())
                 }
             }
 
             override fun printMerchantReceiptAndSignature(receipt: PaymentReceipt?) {
                 merchantReceipt = receipt?.plainTextLines()?.joinToString("\n") { it.toString() }
+                CCVLogger.logEvent("MERCHANT_RECEIPT", "Receipt received")
             }
 
             override fun printCustomerReceiptAndSignature(receipt: PaymentReceipt?) {
                 customerReceipt = receipt?.plainTextLines()?.joinToString("\n") { it.toString() }
+                CCVLogger.logEvent("CUSTOMER_RECEIPT", "Receipt received")
             }
 
             override fun printDccOffer(receipt: PaymentReceipt?) {
-                // DCC teklifi göster
+                CCVLogger.logEvent("DCC_OFFER", "DCC offer received")
             }
 
             override fun onPaymentSuccess(result: MapiPaymentResult?) {
+                // Log raw SDK result
+                CCVLogger.logRawPaymentResult(result)
+
                 val paymentResult = PaymentResult(
                     status = TransactionStatus.SUCCESS,
                     requestId = requestId,
@@ -252,6 +311,9 @@ class PaymentHelper private constructor() {
                     customerReceipt = customerReceipt
                 )
 
+                // Log response
+                CCVLogger.logPaymentResponse(operation, paymentResult)
+
                 if (merchantReceipt != null || customerReceipt != null) {
                     callback.onReceiptReady(ReceiptInfo(merchantReceipt, customerReceipt, null))
                 }
@@ -260,47 +322,55 @@ class PaymentHelper private constructor() {
             }
 
             override fun onError(error: Error?) {
-                callback.onError(
-                    error?.mapiError()?.name ?: "UNKNOWN",
-                    error?.mapiError()?.description() ?: "Bilinmeyen hata"
-                )
+                val errorCode = error?.mapiError()?.name ?: "UNKNOWN"
+                val errorMessage = error?.mapiError()?.description() ?: "Unknown error"
+
+                // Log error
+                CCVLogger.logError(operation, errorCode, errorMessage)
+
+                callback.onError(errorCode, errorMessage)
             }
 
             override fun drawCustomerSignature(signatureCallback: CustomerSignatureCallback?) {
+                CCVLogger.logEvent("SIGNATURE_REQUEST", "Customer signature requested")
                 callback.onSignatureRequired {
                     signatureCallback?.signature(ByteArray(100))
                 }
             }
 
             override fun askCustomerIdentification(identificationCallback: Callback?) {
+                CCVLogger.logEvent("IDENTIFICATION_REQUEST", "Customer identification requested")
                 callback.onIdentificationRequired {
                     identificationCallback?.proceed()
                 }
             }
 
             override fun askCustomerSignature(signatureCallback: Callback?) {
+                CCVLogger.logEvent("SIGNATURE_REQUEST", "Customer signature confirmation requested")
                 callback.onSignatureRequired {
                     signatureCallback?.proceed()
                 }
             }
 
             override fun askMerchantSignature(signatureCallback: Callback?) {
+                CCVLogger.logEvent("SIGNATURE_REQUEST", "Merchant signature requested")
                 signatureCallback?.proceed()
             }
 
             override fun eReceipt(eReceiptRequest: EReceiptRequest?) {
-                // E-fiş işlemleri
+                CCVLogger.logEvent("E_RECEIPT", eReceiptRequest?.toString())
             }
 
             override fun printJournalReceipt(receipt: PaymentReceipt?) {
-                // Journal fişi
+                CCVLogger.logEvent("JOURNAL_RECEIPT", "Journal receipt received")
             }
 
             override fun storeEJournal(journal: String?) {
-                // E-journal kaydet
+                CCVLogger.logEvent("E_JOURNAL", "E-Journal stored")
             }
 
             override fun showOnCustomerDisplay(mainText: MainTextRequest?, subText: DisplayTextRequest?) {
+                CCVLogger.logEvent("CUSTOMER_DISPLAY", mainText?.text())
                 mainText?.text()?.let { callback.onDisplayMessage(it) }
             }
         }

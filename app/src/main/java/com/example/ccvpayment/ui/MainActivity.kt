@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
+import com.example.ccvpayment.helper.PopupMessageHelper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.ccvpayment.R
@@ -17,10 +17,24 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 /**
- * Ana Ekran Activity
+ * Main Activity - Home screen of the CCV Payment application.
  *
- * CCV Payment uygulamasının ana menü ekranı.
- * Terminal durumunu gösterir ve tüm işlemlere erişim sağlar.
+ * This activity serves as the main menu and provides access to all
+ * payment and terminal operations. It displays the current terminal
+ * connection status and provides quick access to common functions.
+ *
+ * Features:
+ * - Terminal connection status display
+ * - Quick access to Payment and Refund
+ * - Period closing (Z-Report)
+ * - X-Report (interim report)
+ * - Transaction history
+ * - Receipt reprinting
+ * - Settings access
+ *
+ * @author Erkan Kaplan
+ * @date 2026-02-05
+ * @since 1.0
  */
 class MainActivity : AppCompatActivity() {
 

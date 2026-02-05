@@ -1,5 +1,13 @@
 # CCV Payment App
 
+> **⚠️ Önemli Uyarı**
+>
+> Bu proje yalnızca elinizde **CCV Debug POS cihazı** varsa çalışır. Uygulama, test ve geliştirme için debug modu etkinleştirilmiş fiziksel bir CCV terminali gerektirir. Debug POS cihazı edinmek için lütfen doğrudan CCV firması ile iletişime geçin.
+>
+> **İletişim:** [CCV Developer Portal](https://developer.myccv.eu/) | [CCV Web Sitesi](https://www.ccv.eu/)
+
+---
+
 Android ödeme terminal entegrasyonu için geliştirilmiş uygulama. CCV mAPI SDK kullanarak POS terminal işlemlerini yönetir.
 
 ## Gereksinimler

@@ -127,4 +127,16 @@
     <string name="status_connected">Connected</string>
     <string name="status_disconnected">Disconnected</string>
     <string name="status_unknown">Unknown</string>
+
+    <!-- Popup Messages -->
+    <string name="connection_success">Connection successful!</string>
+    <string name="terminal_started_success">Terminal started successfully</string>
+    <string name="last_message_repeated">Last message repeated</string>
+    <string name="loading_starting_terminal">Starting terminal…</string>
+    <string name="loading_processing">Processing…</string>
+    <string name="loading_scanning_terminals">Scanning terminals…</string>
+    <string name="discovery_result">Result</string>
+    <string name="no_terminal_found">No terminal found</string>
+    <string name="terminals_found">Terminals Found (%d)</string>
+    <string name="select_first">Select First</string>
 </resources>

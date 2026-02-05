@@ -2,20 +2,34 @@ package com.example.ccvpayment.ui
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.ccvpayment.R
 import com.example.ccvpayment.databinding.ActivitySettingsBinding
 import com.example.ccvpayment.helper.CCVPaymentManager
+import com.example.ccvpayment.helper.PopupMessageHelper
 import com.example.ccvpayment.helper.TerminalHelper
 import com.example.ccvpayment.model.TerminalStatus
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import eu.ccvlab.mapi.core.terminal.ExternalTerminal
 
 /**
- * Terminal Ayarları Activity
+ * Terminal Settings Activity - Terminal connection and configuration.
  *
- * Terminal bağlantı ayarları ve terminal işlemleri.
+ * This activity provides options for configuring the terminal connection
+ * and performing terminal-specific operations such as testing connection,
+ * starting terminal, and discovering terminals on the network.
+ *
+ * Features:
+ * - IP address and port configuration
+ * - Connection testing
+ * - Terminal status display
+ * - Terminal startup
+ * - Repeat last message
+ * - Terminal discovery
+ *
+ * @author Erkan Kaplan
+ * @date 2026-02-05
+ * @since 1.0
  */
 class TerminalSettingsActivity : AppCompatActivity() {
 
@@ -110,16 +124,16 @@ class TerminalSettingsActivity : AppCompatActivity() {
                 updateTerminalInfo(status)
 
                 if (status != null && status.isConnected) {
-                    Toast.makeText(this, "Bağlantı başarılı!", Toast.LENGTH_SHORT).show()
+                    PopupMessageHelper.showSuccess(this, getString(R.string.connection_success))
                 } else {
-                    Toast.makeText(this, getString(R.string.error_connection_failed), Toast.LENGTH_SHORT).show()
+                    PopupMessageHelper.showError(this, getString(R.string.error_connection_failed))
                 }
             }
         }
     }
 
     private fun startupTerminal() {
-        showLoading("Terminal başlatılıyor...")
+        showLoading(getString(R.string.loading_starting_terminal))
 
         val terminal = getTerminalFromInput()
 
@@ -128,11 +142,7 @@ class TerminalSettingsActivity : AppCompatActivity() {
                 hideLoading()
 
                 if (success) {
-                    MaterialAlertDialogBuilder(this)
-                        .setTitle(getString(R.string.result_success))
-                        .setMessage("Terminal başarıyla başlatıldı")
-                        .setPositiveButton(getString(R.string.dialog_ok), null)
-                        .show()
+                    PopupMessageHelper.showSuccess(this, getString(R.string.terminal_started_success))
                     loadTerminalInfo()
                 } else {
                     MaterialAlertDialogBuilder(this)
@@ -146,7 +156,7 @@ class TerminalSettingsActivity : AppCompatActivity() {
     }
 
     private fun repeatLastMessage() {
-        showLoading("İşlem yapılıyor...")
+        showLoading(getString(R.string.loading_processing))
 
         val terminal = getTerminalFromInput()
 
@@ -154,7 +164,7 @@ class TerminalSettingsActivity : AppCompatActivity() {
             override fun onSuccess(message: String?) {
                 runOnUiThread {
                     hideLoading()
-                    Toast.makeText(this@TerminalSettingsActivity, message ?: "Son mesaj tekrarlandı", Toast.LENGTH_SHORT).show()
+                    PopupMessageHelper.showSuccess(this@TerminalSettingsActivity, message ?: getString(R.string.last_message_repeated))
                 }
             }
 
@@ -172,11 +182,11 @@ class TerminalSettingsActivity : AppCompatActivity() {
     }
 
     private fun discoverTerminals() {
-        showLoading("Terminaller taranıyor...")
+        showLoading(getString(R.string.loading_scanning_terminals))
 
         terminalHelper.discoverTerminals(object : TerminalHelper.TerminalDiscoveryCallback {
             override fun onTerminalFound(terminal: ExternalTerminal) {
-                // Her terminal bulunduğunda çağrılır
+                // Called when each terminal is found
             }
 
             override fun onDiscoveryComplete(terminals: List<ExternalTerminal>) {
@@ -185,8 +195,8 @@ class TerminalSettingsActivity : AppCompatActivity() {
 
                     if (terminals.isEmpty()) {
                         MaterialAlertDialogBuilder(this@TerminalSettingsActivity)
-                            .setTitle("Sonuç")
-                            .setMessage("Hiç terminal bulunamadı")
+                            .setTitle(getString(R.string.discovery_result))
+                            .setMessage(getString(R.string.no_terminal_found))
                             .setPositiveButton(getString(R.string.dialog_ok), null)
                             .show()
                     } else {
@@ -195,10 +205,10 @@ class TerminalSettingsActivity : AppCompatActivity() {
                         }.joinToString("\n")
 
                         MaterialAlertDialogBuilder(this@TerminalSettingsActivity)
-                            .setTitle("Bulunan Terminaller (${terminals.size})")
+                            .setTitle(getString(R.string.terminals_found, terminals.size))
                             .setMessage(terminalList)
                             .setPositiveButton(getString(R.string.dialog_ok), null)
-                            .setNeutralButton("İlkini Seç") { _, _ ->
+                            .setNeutralButton(getString(R.string.select_first)) { _, _ ->
                                 terminals.firstOrNull()?.let { terminal ->
                                     binding.etIpAddress.setText(terminal.ipAddress())
                                     binding.etPort.setText(terminal.port().toString())
