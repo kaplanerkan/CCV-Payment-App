@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.gradlew.bat assembleDebug:*)",
+      "Bash(cmd.exe /c \"gradlew.bat assembleDebug\")",
+      "Bash(cmd.exe /c \"cd /d C:\\\\Users\\\\Erkan\\\\Downloads\\\\ccv-payment-app && gradlew.bat assembleDebug 2>&1\")",
+      "Bash(powershell.exe -Command \"Set-Location ''C:\\\\Users\\\\Erkan\\\\Downloads\\\\ccv-payment-app''; .\\\\gradlew.bat assembleDebug\")",
+      "Bash(powershell.exe -Command \"java -version; Get-ChildItem ''C:\\\\Program Files\\\\Java'' -ErrorAction SilentlyContinue; Get-ChildItem ''C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr'' -ErrorAction SilentlyContinue\")",
+      "Bash(powershell.exe -Command \"$env:JAVA_HOME=''C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr''; Set-Location ''C:\\\\Users\\\\Erkan\\\\Downloads\\\\ccv-payment-app''; .\\\\gradlew.bat assembleDebug\")",
+      "Bash(powershell.exe:*)",
+      "Bash(Select-Object -First 80)",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\Erkan\\\\Downloads\\\\ccv-payment-app && gradlew.bat assembleDebug\")",
+      "Bash(cmd /c:*)",
+      "Bash(C:/Users/Erkan/Downloads/ccv-payment-app/gradlew.bat:*)",
+      "Bash(javap:*)",
+      "Bash(\"C:/Program Files/Android/Android Studio/jbr/bin/javap\" -public /tmp/ccv_sdk_analysis/extracted/eu/ccvlab/mapi/core/terminal/ExternalTerminal.class)",
+      "Bash(unzip:*)",
+      "Bash(\"C:/Program Files/Android/Android Studio/jbr/bin/javap.exe\":*)",
+      "Bash(./gradlew.bat assembleDebug:*)",
+      "Bash(./gradlew.bat clean:*)",
+      "WebFetch(domain:developer.myccv.eu)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}
