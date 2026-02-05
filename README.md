@@ -1,40 +1,42 @@
 # CCV Payment App
 
-Android ödeme terminal entegrasyonu için geliştirilmiş uygulama. CCV mAPI SDK kullanarak POS terminal işlemlerini yönetir.
+[![Türkçe](https://img.shields.io/badge/Dil-Türkçe-red)](README.TR.md)
 
-## Gereksinimler
+Android payment terminal integration application. Manages POS terminal operations using CCV mAPI SDK.
+
+## Requirements
 
 - Android SDK 24+ (Android 7.0 Nougat)
 - Kotlin 2.3.0
 - Gradle 8.14.4
 - CCV mAPI SDK 1.33
 
-## Kurulum
+## Installation
 
-1. `libs` klasörüne CCV SDK AAR dosyalarını ekleyin:
+1. Add CCV SDK AAR files to `libs` folder:
    - `api-hardware-1.33.aar`
    - `pi-api-1.33.aar`
 
-2. Projeyi build edin:
+2. Build the project:
 ```bash
 ./gradlew assembleDebug
 ```
 
-## Proje Yapısı
+## Project Structure
 
 ```
 app/src/main/java/com/example/ccvpayment/
-├── CCVPaymentApp.kt              # Application sınıfı (MAPI.initialize)
+├── CCVPaymentApp.kt              # Application class (MAPI.initialize)
 ├── helper/
-│   ├── PaymentHelper.kt          # Ödeme işlemleri
-│   ├── TerminalHelper.kt         # Terminal yönetimi
-│   ├── TransactionHelper.kt      # İşlem geçmişi ve raporlar
-│   └── CCVPaymentManager.kt      # Genel yönetim sınıfı
+│   ├── PaymentHelper.kt          # Payment operations
+│   ├── TerminalHelper.kt         # Terminal management
+│   ├── TransactionHelper.kt      # Transaction history and reports
+│   └── CCVPaymentManager.kt      # General management class
 ├── model/
-│   └── PaymentModels.kt          # Veri modelleri
+│   └── PaymentModels.kt          # Data models
 └── ui/
-    ├── MainActivity.kt           # Ana ekran
-    ├── PaymentActivity.kt        # Ödeme ekranı
+    ├── MainActivity.kt           # Main screen
+    ├── PaymentActivity.kt        # Payment screen
     ├── TransactionHistoryActivity.kt
     ├── SettingsActivity.kt
     └── TerminalSettingsActivity.kt
@@ -42,50 +44,50 @@ app/src/main/java/com/example/ccvpayment/
 
 ---
 
-## Mevcut Özellikler
+## Current Features
 
-### Ödeme İşlemleri
+### Payment Operations
 
-| Özellik | Metod | Açıklama |
-|---------|-------|----------|
-| Satış (SALE) | `PaymentHelper.makePayment()` | Standart kart ile ödeme |
-| İade (REFUND) | `PaymentHelper.refund()` | Ödeme iadesi |
-| İptal (VOID) | `PaymentHelper.reversal()` | İşlem iptali |
-| Ön Provizyon | `PaymentHelper.authorise()` | Rezervasyon/blokaj |
-| Provizyon Kapama | `PaymentHelper.capture()` | Rezervasyonu satışa çevir |
-| Ödeme Durdur | `PaymentHelper.stopPayment()` | Devam eden ödemeyi iptal et |
+| Feature | Method | Description |
+|---------|--------|-------------|
+| Sale | `PaymentHelper.makePayment()` | Standard card payment |
+| Refund | `PaymentHelper.refund()` | Payment refund |
+| Void | `PaymentHelper.reversal()` | Transaction cancellation |
+| Pre-Authorization | `PaymentHelper.authorise()` | Reservation/hold |
+| Capture | `PaymentHelper.capture()` | Convert reservation to sale |
+| Stop Payment | `PaymentHelper.stopPayment()` | Cancel ongoing payment |
 
-### Terminal İşlemleri
+### Terminal Operations
 
-| Özellik | Metod | Açıklama |
-|---------|-------|----------|
-| Terminal Durumu | `TerminalHelper.getStatus()` | Bağlantı ve durum kontrolü |
-| Terminal Başlat | `TerminalHelper.startup()` | Terminal başlatma |
-| Terminal Aktivasyon | `TerminalHelper.activateTerminal()` | Terminal aktivasyonu |
-| Son Mesaj | `TerminalHelper.repeatLastMessage()` | Son mesajı tekrarla |
-| Son Fiş | `TerminalHelper.retrieveLastTicket()` | Son fişi al |
-| Ödeme Kurtar | `TerminalHelper.recoverPayment()` | Kesilen ödemeyi kurtar |
+| Feature | Method | Description |
+|---------|--------|-------------|
+| Terminal Status | `TerminalHelper.getStatus()` | Connection and status check |
+| Terminal Startup | `TerminalHelper.startup()` | Start terminal |
+| Terminal Activation | `TerminalHelper.activateTerminal()` | Activate terminal |
+| Last Message | `TerminalHelper.repeatLastMessage()` | Repeat last message |
+| Last Receipt | `TerminalHelper.retrieveLastTicket()` | Get last receipt |
+| Payment Recovery | `TerminalHelper.recoverPayment()` | Recover interrupted payment |
 
-### Rapor İşlemleri
+### Report Operations
 
-| Özellik | Metod | Açıklama |
-|---------|-------|----------|
-| Dönem Kapama | `TerminalHelper.periodClosing()` | Z-Raporu / Gün sonu |
-| İşlem Özeti | `TerminalHelper.transactionOverview()` | X-Raporu / Anlık özet |
+| Feature | Method | Description |
+|---------|--------|-------------|
+| Period Closing | `TerminalHelper.periodClosing()` | Z-Report / End of day |
+| Transaction Overview | `TerminalHelper.transactionOverview()` | X-Report / Current summary |
 
 ---
 
-## Eklenebilecek Özellikler
+## Features That Can Be Added
 
-CCV mAPI SDK'nın desteklediği ancak henüz entegre edilmemiş özellikler:
+Features supported by CCV mAPI SDK but not yet integrated:
 
-### 1. Kart İşlemleri (Card Operations)
+### 1. Card Operations
 
-#### Card Read - Ödeme Öncesi Kart Okuma
-Ödeme yapmadan önce kartı okuyup bilgileri almak için kullanılır.
+#### Card Read - Pre-Payment Card Reading
+Used to read card information before making a payment.
 
 ```kotlin
-// SDK Kullanımı
+// SDK Usage
 val opiDEService = OpiDEService()
 val cardReadRequest = CardReadRequest.builder()
     .ageVerification(AgeVerification.builder()
@@ -96,13 +98,13 @@ val cardReadRequest = CardReadRequest.builder()
 opiDEService.cardRead(terminal, cardReadDelegate, cardReadRequest)
 ```
 
-**Kullanım Alanları:**
-- Yaş doğrulama (alkol, sigara satışı)
-- Müşteri tanıma (loyalty programları)
-- Kart tipi kontrolü
+**Use Cases:**
+- Age verification (alcohol, tobacco sales)
+- Customer recognition (loyalty programs)
+- Card type verification
 
-#### Card Read SecureID - Güvenli Kart Okuma
-Hash algoritması ile güvenli kart kimliği alma.
+#### Card Read SecureID - Secure Card Reading
+Get secure card identity with hash algorithm.
 
 ```kotlin
 val cardReadRequest = CardReadRequest.builder()
@@ -112,12 +114,12 @@ val cardReadRequest = CardReadRequest.builder()
 opiDEService.cardRead(terminal, delegate, cardReadRequest)
 ```
 
-**Kullanım Alanları:**
-- Recurring payment token oluşturma
-- Müşteri kimlik doğrulama
+**Use Cases:**
+- Recurring payment token creation
+- Customer identity verification
 
-#### Card Detection - Kart Tipi Algılama
-Kart markası ve tipini algılar.
+#### Card Detection - Card Type Detection
+Detects card brand and type.
 
 ```kotlin
 val cardDetectionRequest = CardDetectionRequest.builder()
@@ -125,37 +127,37 @@ val cardDetectionRequest = CardDetectionRequest.builder()
 paymentService.cardDetection(terminal, cardDetectionRequest, delegate)
 ```
 
-**Kullanım Alanları:**
-- Kart markası bazlı indirimler
-- Belirli kartları reddetme/kabul etme
+**Use Cases:**
+- Card brand based discounts
+- Accept/reject specific cards
 
-#### Card Circuits - Desteklenen Kartlar
-Terminal'in desteklediği kart markalarını listeler.
+#### Card Circuits - Supported Cards
+Lists card brands supported by the terminal.
 
 ```kotlin
 val terminalService = TerminalService()
 terminalService.cardCircuits(terminal, delegate)
 ```
 
-#### Read Mifare UID - NFC Kart ID Okuma
-Mifare NFC kartların benzersiz ID'sini okur.
+#### Read Mifare UID - NFC Card ID Reading
+Reads unique ID of Mifare NFC cards.
 
 ```kotlin
 val terminalService = TerminalService()
 terminalService.readMifareUID(terminal, tokenDelegate)
 ```
 
-**Kullanım Alanları:**
-- Personel kartı doğrulama
-- Müşteri sadakat kartı
-- Erişim kontrolü
+**Use Cases:**
+- Employee card verification
+- Customer loyalty card
+- Access control
 
 ---
 
-### 2. Token İşlemleri (Tokenization)
+### 2. Token Operations (Tokenization)
 
-#### Token Alma
-Kart bilgilerini tokenize ederek saklamak için kullanılır.
+#### Get Token
+Used to tokenize and store card information.
 
 ```kotlin
 val payment = Payment.builder()
@@ -166,13 +168,13 @@ val payment = Payment.builder()
 paymentService.payment(terminal, payment, delegate)
 ```
 
-**Kullanım Alanları:**
-- Abonelik ödemeleri
-- Tek tıkla ödeme
+**Use Cases:**
+- Subscription payments
+- One-click payment
 - Recurring payments
 
-#### Token ile İade
-Daha önce alınan token ile iade işlemi.
+#### Refund with Token
+Refund operation using previously obtained token.
 
 ```kotlin
 val payment = Payment.builder()
@@ -185,8 +187,8 @@ val payment = Payment.builder()
 paymentService.payment(terminal, payment, delegate)
 ```
 
-#### Token ile Satış (Card Not Present)
-Kart fiziksel olarak olmadan token ile ödeme.
+#### Sale with Token (Card Not Present)
+Payment with token without physical card.
 
 ```kotlin
 val payment = Payment.builder()
@@ -199,10 +201,10 @@ paymentService.payment(terminal, payment, delegate)
 
 ---
 
-### 3. Gift Card İşlemleri
+### 3. Gift Card Operations
 
-#### Gift Card Bakiye Sorgulama
-Hediye kartı bakiyesini kontrol eder.
+#### Gift Card Balance Query
+Check gift card balance.
 
 ```kotlin
 val payment = Payment.builder()
@@ -212,8 +214,8 @@ val payment = Payment.builder()
 paymentService.payment(terminal, payment, delegate)
 ```
 
-#### Gift Card Aktivasyon / Yükleme
-Hediye kartını aktifleştirir veya bakiye yükler.
+#### Gift Card Activation / Reload
+Activate gift card or load balance.
 
 ```kotlin
 val payment = Payment.builder()
@@ -226,10 +228,10 @@ paymentService.payment(terminal, payment, delegate)
 
 ---
 
-### 4. Gelişmiş Ödeme Özellikleri
+### 4. Advanced Payment Features
 
-#### Reservation Adjustment - Provizyon Güncelleme
-Mevcut ön provizyonun tutarını değiştirir.
+#### Reservation Adjustment - Pre-Authorization Update
+Changes the amount of existing pre-authorization.
 
 ```kotlin
 fun startReservationAdjustment(
@@ -247,13 +249,13 @@ fun startReservationAdjustment(
 }
 ```
 
-**Kullanım Alanları:**
-- Otel konaklama (ekstra harcamalar)
-- Araç kiralama
-- Restoran (bahşiş ekleme)
+**Use Cases:**
+- Hotel accommodation (extra charges)
+- Car rental
+- Restaurant (adding tip)
 
 #### Card Not Present - Reservation to Sale
-Kart olmadan provizyon kapama (telefon/online).
+Close pre-authorization without card (phone/online).
 
 ```kotlin
 fun startSaleAfterReservation(
@@ -272,8 +274,8 @@ fun startSaleAfterReservation(
 }
 ```
 
-#### Authorisation By Voice - Manuel Yetkilendirme
-Telefon ile alınan yetki kodu ile işlem.
+#### Authorisation By Voice - Manual Authorization
+Transaction with authorization code obtained by phone.
 
 ```kotlin
 val payment = Payment.builder()
@@ -285,49 +287,49 @@ val payment = Payment.builder()
 paymentService.payment(terminal, payment, delegate)
 ```
 
-**Kullanım Alanları:**
-- Online yetkilendirme başarısız olduğunda
-- Yüksek tutarlı işlemler
-- Banka telefon onayı
+**Use Cases:**
+- When online authorization fails
+- High amount transactions
+- Bank phone approval
 
 #### DCC - Dynamic Currency Conversion
-Yabancı kart sahiplerine kendi para biriminde ödeme seçeneği.
+Payment option in foreign cardholders' own currency.
 
 ```kotlin
-// PaymentDelegate içinde
+// Inside PaymentDelegate
 override fun printDccOffer(receipt: PaymentReceipt?) {
-    // DCC teklif fişini göster
-    // Müşteri kabul/red seçeneği sun
+    // Show DCC offer receipt
+    // Present accept/reject option to customer
 }
 ```
 
 ---
 
-### 5. Terminal Yönetimi
+### 5. Terminal Management
 
-#### Login - Terminal Girişi
-Terminal oturumu başlatır.
+#### Login - Terminal Login
+Starts terminal session.
 
 ```kotlin
 val terminalService = TerminalService()
 terminalService.login(terminal, delegate)
 ```
 
-#### Diagnosis - Terminal Tanılama
-Terminal sağlık kontrolü yapar.
+#### Diagnosis - Terminal Diagnostics
+Performs terminal health check.
 
 ```kotlin
 val opiDEService = OpiDEService()
 opiDEService.terminalOperation(terminal, delegate, TerminalOperationType.DIAGNOSIS)
 ```
 
-**Diagnosis Tipleri:**
-- `DIAGNOSIS` - Genel tanılama
-- `EMV_DIAGNOSIS` - EMV chip tanılama
-- `CONFIGURATION_DIAGNOSIS` - Yapılandırma kontrolü
+**Diagnosis Types:**
+- `DIAGNOSIS` - General diagnostics
+- `EMV_DIAGNOSIS` - EMV chip diagnostics
+- `CONFIGURATION_DIAGNOSIS` - Configuration check
 
-#### Config Data - Yapılandırma Bilgisi
-Terminal yapılandırma verilerini alır.
+#### Config Data - Configuration Information
+Gets terminal configuration data.
 
 ```kotlin
 opiDEService.terminalAdministrationOperation(
@@ -337,53 +339,53 @@ opiDEService.terminalAdministrationOperation(
 )
 ```
 
-#### Service Menu - Servis Menüsü
-Terminal servis menüsünü açar.
+#### Service Menu - Service Menu
+Opens terminal service menu.
 
 ```kotlin
 opiDEService.startServiceMenu(terminal, delegate)
 ```
 
-#### Check Password - Şifre Doğrulama
-Terminal şifresini kontrol eder.
+#### Check Password - Password Verification
+Verifies terminal password.
 
 ```kotlin
 opiDEService.checkPassword(terminal, delegate)
 ```
 
 #### Call TMS - Terminal Management System
-TMS sunucusuna bağlanarak güncelleme/yapılandırma alır.
+Connects to TMS server for updates/configuration.
 
 ```kotlin
 opiDEService.callTMS(terminal, delegate, "jobName")
 ```
 
 #### Factory Reset
-Terminal'i fabrika ayarlarına döndürür.
+Resets terminal to factory settings.
 
 ```kotlin
-// OPI-DE protokolü için
+// For OPI-DE protocol
 opiDEService.factoryReset(terminal, delegate)
-// veya
+// or
 opiDEService.resetToFactorySettings(terminal, delegate)
 ```
 
 #### Elme Version Info
-Terminal yazılım versiyon bilgisini alır.
+Gets terminal software version information.
 
 ```kotlin
 opiDEService.elmeVersionInfo(terminal, delegate)
 ```
 
-#### Ticket Reprint - Fiş Tekrar Basma
-Son dönem kapama fişini tekrar basar.
+#### Ticket Reprint - Receipt Reprint
+Reprints last period closing receipt.
 
 ```kotlin
 terminalService.ticketReprintPeriodClosing(terminal, delegate)
 ```
 
 #### Repeat Last Service Message
-Son servis mesajını tekrarlar.
+Repeats last service message.
 
 ```kotlin
 terminalService.repeatLastServiceMessage(terminal, delegate)
@@ -391,10 +393,10 @@ terminalService.repeatLastServiceMessage(terminal, delegate)
 
 ---
 
-### 6. Donanım Özellikleri (Hardware API)
+### 6. Hardware Features (Hardware API)
 
-#### Barkod / QR Kod Tarayıcı
-Kamera ile barkod ve QR kod tarama.
+#### Barcode / QR Code Scanner
+Scan barcodes and QR codes with camera.
 
 ```kotlin
 class BarcodeScannerActivity : AppCompatActivity() {
@@ -405,12 +407,12 @@ class BarcodeScannerActivity : AppCompatActivity() {
         paxService = PaxService()
         paxService.scanBarcode(surfaceView, object : BarcodeScannerDelegate {
             override fun onSuccess(barcodeScannerResult: String) {
-                // Barkod/QR içeriği
+                // Barcode/QR content
                 handleBarcode(barcodeScannerResult)
             }
 
             override fun onError(error: Error) {
-                // Hata yönetimi
+                // Error handling
             }
         }, this)
     }
@@ -422,73 +424,73 @@ class BarcodeScannerActivity : AppCompatActivity() {
 }
 ```
 
-**Kullanım Alanları:**
-- Ürün barkodu okuma
-- QR kod ile ödeme
-- Loyalty kart tarama
-- Fatura ödeme (karekod)
+**Use Cases:**
+- Product barcode scanning
+- QR code payment
+- Loyalty card scanning
+- Bill payment (QR code)
 
 #### Terminal Reboot
-Cihazı yeniden başlatır.
+Restarts the device.
 
 ```kotlin
 val paxService = PaxService()
 paxService.reboot(context)
 ```
 
-#### NFC İşlemleri
-NFC kart okuma ve yazma işlemleri.
+#### NFC Operations
+NFC card read and write operations.
 
 ```kotlin
-// PaxService üzerinden NFC erişimi
+// NFC access via PaxService
 paxService.readNfc(...)
 ```
 
-#### Dahili Yazıcı
-Terminal'in dahili yazıcısına doğrudan erişim.
+#### Internal Printer
+Direct access to terminal's internal printer.
 
 ```kotlin
-// Fiş basma işlemleri
+// Receipt printing operations
 paxService.print(...)
 ```
 
 ---
 
-### 7. Özel İşlemler
+### 7. Special Operations
 
-#### Tax-Free İşlemleri
-Turistlere vergisiz satış.
+#### Tax-Free Operations
+Tax-free sales for tourists.
 
 ```kotlin
 val terminalCommandRequest = TerminalCommandRequest.builder()
-    // Tax-free parametreleri
+    // Tax-free parameters
     .build()
 opiDEService.terminalCommand(terminal, delegate, terminalCommandRequest, agent)
 ```
 
-#### Flexo - Akaryakıt Kartı
-Akaryakıt istasyonları için özel kart desteği.
+#### Flexo - Fuel Card
+Special card support for gas stations.
 
 ```kotlin
 opiDEService.flexo(terminal, delegate)
 ```
 
 #### Mobile Phone Prepaid
-Mobil telefon kontör yükleme.
+Mobile phone top-up.
 
 ```kotlin
-// Prepaid operatör entegrasyonu
+// Prepaid operator integration
 ```
 
 #### OAM Server Applications
-OAM (Operator Application Module) sunucu işlemleri.
+OAM (Operator Application Module) server operations.
 
 ```kotlin
 opiDEService.oamServerApplications(terminal, delegate)
 ```
 
 #### Online Agent
-Online acente işlemleri.
+Online agent operations.
 
 ```kotlin
 val onlineAgentRequest = OnlineAgentRequest.builder()
@@ -498,43 +500,43 @@ paymentService.onlineAgent(terminal, onlineAgentRequest, delegate)
 
 ---
 
-## SDK Sınıfları Referansı
+## SDK Class Reference
 
-### Servis Sınıfları
+### Service Classes
 
-| Sınıf | Açıklama |
-|-------|----------|
-| `PaymentService` | Ödeme işlemleri (implements `PaymentApi`) |
-| `TerminalService` | Terminal yönetimi (implements `TerminalApi`) |
-| `OpiDEService` | OPI-DE protokolü özel işlemleri (implements `OpiDEApi`) |
-| `PaxService` | PAX donanım erişimi (barkod, yazıcı, NFC) |
+| Class | Description |
+|-------|-------------|
+| `PaymentService` | Payment operations (implements `PaymentApi`) |
+| `TerminalService` | Terminal management (implements `TerminalApi`) |
+| `OpiDEService` | OPI-DE protocol specific operations (implements `OpiDEApi`) |
+| `PaxService` | PAX hardware access (barcode, printer, NFC) |
 
-### Delegate Arayüzleri
+### Delegate Interfaces
 
-| Arayüz | Açıklama |
-|--------|----------|
-| `PaymentDelegate` | Ödeme sonuç callback'leri |
-| `TerminalDelegate` | Terminal işlem callback'leri |
-| `CardReadDelegate` | Kart okuma callback'leri |
-| `CardReaderStatusDelegate` | Kart okuyucu durum callback'leri |
-| `TokenDelegate` | Token işlem callback'leri |
-| `BarcodeScannerDelegate` | Barkod tarama callback'leri |
+| Interface | Description |
+|-----------|-------------|
+| `PaymentDelegate` | Payment result callbacks |
+| `TerminalDelegate` | Terminal operation callbacks |
+| `CardReadDelegate` | Card read callbacks |
+| `CardReaderStatusDelegate` | Card reader status callbacks |
+| `TokenDelegate` | Token operation callbacks |
+| `BarcodeScannerDelegate` | Barcode scan callbacks |
 
 ### Payment Types
 
 ```kotlin
 enum Payment.Type {
-    SALE,                          // Satış
-    REFUND,                        // İade
-    VOID,                          // İptal
-    RESERVATION,                   // Ön provizyon
-    GIFT_CARD_BALANCE,            // Gift card bakiye
-    ACTIVATE_RECHARGE_GIFT_CARD,  // Gift card aktivasyon
+    SALE,                          // Sale
+    REFUND,                        // Refund
+    VOID,                          // Void
+    RESERVATION,                   // Pre-authorization
+    GIFT_CARD_BALANCE,            // Gift card balance
+    ACTIVATE_RECHARGE_GIFT_CARD,  // Gift card activation
     // ...
 }
 ```
 
-### Terminal Yapılandırması
+### Terminal Configuration
 
 ```kotlin
 val terminal = ExternalTerminal.builder()
@@ -545,50 +547,50 @@ val terminal = ExternalTerminal.builder()
     .terminalType(TerminalType.OPI_DE)
     .workstationId("WORKSTATION_001")
     .languageCode(LanguageCode.EN)
-    .requestToken(true)                // Token almak için true
+    .requestToken(true)                // Set true to get token
     .build()
 ```
 
 ---
 
-## Protokol Karşılaştırması
+## Protocol Comparison
 
-| Özellik | OPI-DE | OPI-NL |
+| Feature | OPI-DE | OPI-NL |
 |---------|--------|--------|
-| Varsayılan Port | 20002 | 4100 |
-| Uyumluluk Portu | 20007 | 4102 |
-| Socket Modu | Single Socket | Dual Socket |
-| Kullanım Bölgesi | Almanya | Hollanda/Belçika |
-| Card Read | Var | Yok |
-| Factory Reset | Var | Yok |
-| Service Menu | Var | Yok |
+| Default Port | 20002 | 4100 |
+| Compatibility Port | 20007 | 4102 |
+| Socket Mode | Single Socket | Dual Socket |
+| Usage Region | Germany | Netherlands/Belgium |
+| Card Read | Available | Not Available |
+| Factory Reset | Available | Not Available |
+| Service Menu | Available | Not Available |
 
 ---
 
-## Kullanım Örnekleri
+## Usage Examples
 
-### Basit Ödeme
+### Simple Payment
 
 ```kotlin
 val ccv = CCVPaymentManager.getInstance()
 
-// Callback ile
+// With callback
 ccv.makePayment(BigDecimal("25.50")) { result ->
     if (result.isSuccess) {
-        Log.d("Payment", "Başarılı: ${result.transactionId}")
+        Log.d("Payment", "Success: ${result.transactionId}")
     } else {
-        Log.e("Payment", "Hata: ${result.errorMessage}")
+        Log.e("Payment", "Error: ${result.errorMessage}")
     }
 }
 
-// Coroutine ile
+// With coroutine
 lifecycleScope.launch {
     val result = ccv.makePaymentAsync(BigDecimal("25.50"))
     // ...
 }
 ```
 
-### İade İşlemi
+### Refund Operation
 
 ```kotlin
 ccv.refund(BigDecimal("10.00"), originalTransactionId = "TXN123") { result ->
@@ -596,24 +598,24 @@ ccv.refund(BigDecimal("10.00"), originalTransactionId = "TXN123") { result ->
 }
 ```
 
-### Gün Sonu (Z-Report)
+### End of Day (Z-Report)
 
 ```kotlin
 ccv.periodClosing { result ->
-    println("Toplam: ${result.totalAmount}")
-    println("İşlem Sayısı: ${result.transactionCount}")
+    println("Total: ${result.totalAmount}")
+    println("Transaction Count: ${result.transactionCount}")
 }
 ```
 
-### X-Rapor
+### X-Report
 
 ```kotlin
 ccv.partialPeriodClosing { result ->
-    // Gün sonu kapatmadan rapor alır
+    // Get report without closing the day
 }
 ```
 
-### İşlem Geçmişi
+### Transaction History
 
 ```kotlin
 ccv.getTransactionOverview { result ->
@@ -623,36 +625,36 @@ ccv.getTransactionOverview { result ->
 }
 ```
 
-### Terminal Durumu
+### Terminal Status
 
 ```kotlin
 ccv.getTerminalStatus { status ->
-    println("Bağlı: ${status.isConnected}")
+    println("Connected: ${status.isConnected}")
     println("Terminal ID: ${status.terminalId}")
 }
 ```
 
 ---
 
-## Hata Kodları
+## Error Codes
 
-SDK'dan dönen yaygın hata kodları:
+Common error codes returned from SDK:
 
-| Kod | Açıklama |
-|-----|----------|
-| `CONNECTION_ERROR` | Terminal bağlantı hatası |
-| `TIMEOUT` | İşlem zaman aşımı |
-| `CARD_DECLINED` | Kart reddedildi |
-| `CARD_EXPIRED` | Kart süresi dolmuş |
-| `INSUFFICIENT_FUNDS` | Yetersiz bakiye |
-| `INVALID_CARD` | Geçersiz kart |
-| `TERMINAL_BUSY` | Terminal meşgul |
-| `USER_CANCELLED` | Kullanıcı iptal etti |
-| `PRINTER_ERROR` | Yazıcı hatası |
+| Code | Description |
+|------|-------------|
+| `CONNECTION_ERROR` | Terminal connection error |
+| `TIMEOUT` | Operation timeout |
+| `CARD_DECLINED` | Card declined |
+| `CARD_EXPIRED` | Card expired |
+| `INSUFFICIENT_FUNDS` | Insufficient balance |
+| `INVALID_CARD` | Invalid card |
+| `TERMINAL_BUSY` | Terminal busy |
+| `USER_CANCELLED` | User cancelled |
+| `PRINTER_ERROR` | Printer error |
 
 ---
 
-## AndroidManifest Yapılandırması
+## AndroidManifest Configuration
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
@@ -677,20 +679,20 @@ SDK'dan dönen yaygın hata kodları:
 
 ---
 
-## Notlar
+## Notes
 
-1. **MAPI.initialize()** Application sınıfında bir kez çağrılmalı
-2. **singleTask** launchMode zorunlu (terminal callback için)
-3. Tüm işlemler **async** - UI thread'i bloklanmaz
-4. Java 8 desugaring aktif (coreLibraryDesugaring)
+1. **MAPI.initialize()** must be called once in Application class
+2. **singleTask** launchMode is required (for terminal callback)
+3. All operations are **async** - UI thread is not blocked
+4. Java 8 desugaring is active (coreLibraryDesugaring)
 
 ---
 
-## Lisans
+## License
 
-Bu proje CCV mAPI SDK lisansı altında CCV terminal cihazlarında kullanılmak üzere geliştirilmiştir.
+This project is developed under CCV mAPI SDK license for use on CCV terminal devices.
 
-## Kaynaklar
+## Resources
 
 - [CCV Developer Portal](https://developer.myccv.eu/)
 - [Android SDK Documentation](https://developer.myccv.eu/documentation/android_sdk/)
