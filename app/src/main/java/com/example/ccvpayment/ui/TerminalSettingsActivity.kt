@@ -104,9 +104,9 @@ class TerminalSettingsActivity : AppCompatActivity() {
 
     private fun getTerminalFromInput(): ExternalTerminal {
         val ipAddress = binding.etIpAddress.text?.toString()?.trim() ?: "127.0.0.1"
-        val port = binding.etPort.text?.toString()?.toIntOrNull() ?: 20002
+        val port = binding.etPort.text?.toString()?.toIntOrNull() ?: 30002
 
-        return if (ipAddress == "127.0.0.1" && port == 20002) {
+        return if (ipAddress == "127.0.0.1" && port == 30002) {
             ccv.getLocalTerminal()
         } else {
             ccv.createTerminal(ipAddress, port)

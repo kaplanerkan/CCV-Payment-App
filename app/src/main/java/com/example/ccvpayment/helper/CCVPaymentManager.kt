@@ -45,7 +45,7 @@ class CCVPaymentManager private constructor() {
     // ==================== TERMINAL İŞLEMLERİ ====================
 
     /**
-     * Yerel terminal bağlantısı al (Android terminal - 127.0.0.1:20002)
+     * Yerel terminal bağlantısı al (Android terminal - 127.0.0.1:30002)
      */
     fun getLocalTerminal(): ExternalTerminal {
         val terminal = terminalHelper.getLocalTerminal()
@@ -56,7 +56,7 @@ class CCVPaymentManager private constructor() {
     /**
      * Özel IP ve port ile terminal oluştur
      */
-    fun createTerminal(ipAddress: String, port: Int = 20002): ExternalTerminal {
+    fun createTerminal(ipAddress: String, port: Int = 30002): ExternalTerminal {
         val terminal = terminalHelper.createTerminal(ipAddress, port)
         currentTerminal = terminal
         return terminal

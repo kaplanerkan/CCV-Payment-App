@@ -85,7 +85,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="number"
-                            android:text="20002" />
+                            android:text="30002" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 

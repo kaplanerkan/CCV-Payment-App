@@ -50,7 +50,7 @@ class TerminalHelper private constructor() {
         // Default port değerleri
         const val DEFAULT_OPI_NL_PORT = 4100
         const val DEFAULT_OPI_NL_COMPAT_PORT = 4102
-        const val DEFAULT_OPI_DE_PORT = 20002
+        const val DEFAULT_OPI_DE_PORT = 30002
         const val DEFAULT_OPI_DE_COMPAT_PORT = 20007
         const val LOCAL_TERMINAL_IP = "127.0.0.1"
     }

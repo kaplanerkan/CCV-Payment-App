@@ -60,6 +60,7 @@
     <string name="error_transaction_failed">Transaction failed</string>
     <string name="error_connection_failed">Connection failed</string>
     <string name="error_receipt_not_found">Receipt not found</string>
+    <string name="error_operation_not_supported">This operation is not supported by the terminal</string>
 
     <!-- Dialog -->
     <string name="dialog_confirm">Confirm</string>

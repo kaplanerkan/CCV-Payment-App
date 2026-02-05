@@ -60,6 +60,7 @@
     <string name="error_transaction_failed">İşlem başarısız oldu</string>
     <string name="error_connection_failed">Bağlantı başarısız</string>
     <string name="error_receipt_not_found">Fiş bulunamadı</string>
+    <string name="error_operation_not_supported">Bu işlem terminal tarafından desteklenmiyor</string>
 
     <!-- Dialog -->
     <string name="dialog_confirm">Onayla</string>

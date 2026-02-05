@@ -1,22 +1,18 @@
 package com.example.ccvpayment.ui
 
-import android.app.ActivityManager
-import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import com.example.ccvpayment.R
 import com.example.ccvpayment.databinding.ActivityPaymentBinding
+import com.example.ccvpayment.flow.Flow
+import com.example.ccvpayment.flow.FlowActivity
 import com.example.ccvpayment.helper.CCVLogger
-import com.example.ccvpayment.helper.CCVPaymentManager
+import com.example.ccvpayment.model.PaymentResult
 import com.example.ccvpayment.model.TransactionStatus
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.launch
+import eu.ccvlab.mapi.core.payment.Payment
+import eu.ccvlab.mapi.core.payment.PaymentAdministrationResult
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -26,21 +22,20 @@ import java.util.Locale
 /**
  * Payment Activity - Main screen for payment operations.
  *
- * This activity provides a numpad interface for entering payment amounts
- * and initiating sale, refund, and pre-authorization transactions.
+ * This activity extends FlowActivity to use the flow-based pattern
+ * similar to the CCV demo app. It provides a numpad interface for
+ * entering payment amounts and initiating transactions.
  *
  * Features:
  * - Numpad for amount entry
  * - Payment type selection (Sale, Refund, Pre-Auth)
- * - Loading overlay during payment processing
- * - Success/error dialogs with transaction details
- * - Automatic return to foreground after payment completes
+ * - Flow-based state management
+ * - Automatic return after payment completes
  *
  * @author Erkan Kaplan
- * @date 2026-02-05
  * @since 1.0
  */
-class PaymentActivity : AppCompatActivity() {
+class PaymentActivity : FlowActivity() {
 
     companion object {
         const val EXTRA_PAYMENT_TYPE = "payment_type"
@@ -50,12 +45,15 @@ class PaymentActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityPaymentBinding
-    private val ccv = CCVPaymentManager.getInstance()
 
     private var currentAmount: Long = 0 // Kuruş cinsinden
     private var paymentType: String = TYPE_SALE
 
     private val decimalFormat = DecimalFormat("#,##0.00", DecimalFormatSymbols(Locale.GERMANY))
+
+    // Store last result for showing dialog after flow finishes
+    private var lastPaymentResult: PaymentResult? = null
+    private var lastErrorMessage: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +68,55 @@ class PaymentActivity : AppCompatActivity() {
         setupPayButton()
         updateAmountDisplay()
     }
+
+    // ==================== FLOW ACTIVITY CALLBACKS ====================
+
+    override fun onPaymentSuccess(result: PaymentResult) {
+        CCVLogger.logEvent("PAYMENT_COMPLETE", "Payment successful, storing result for dialog")
+        lastPaymentResult = result
+        lastErrorMessage = null
+    }
+
+    override fun onPaymentError(errorCode: String, errorMessage: String) {
+        CCVLogger.logEvent("PAYMENT_COMPLETE", "Payment failed: $errorCode - $errorMessage")
+        lastPaymentResult = null
+        lastErrorMessage = errorMessage
+    }
+
+    override fun onTerminalOperationSuccess(result: PaymentAdministrationResult<*>?) {
+        // Not used in PaymentActivity
+    }
+
+    override fun onTerminalOperationError(errorCode: String, errorMessage: String) {
+        // Not used in PaymentActivity
+    }
+
+    override fun onFlowFinished() {
+        CCVLogger.logEvent("FLOW_FINISHED", "Flow finished, showing result")
+
+        // Hide loading
+        hideLoading()
+
+        // Show appropriate dialog based on result
+        lastPaymentResult?.let { result ->
+            showSuccessDialog(result)
+            lastPaymentResult = null
+            return
+        }
+
+        lastErrorMessage?.let { error ->
+            showErrorDialog(error)
+            lastErrorMessage = null
+            return
+        }
+    }
+
+    override fun onTerminalOutput(message: String) {
+        super.onTerminalOutput(message)
+        // Could update a status text view here if needed
+    }
+
+    // ==================== UI SETUP ====================
 
     private fun setupToolbar() {
         val title = when (paymentType) {
@@ -135,11 +182,13 @@ class PaymentActivity : AppCompatActivity() {
         updatePayButton()
 
         binding.btnPay.setOnClickListener {
-            if (currentAmount > 0) {
+            if (currentAmount > 0 && !isFlowActive()) {
                 processPayment()
             }
         }
     }
+
+    // ==================== AMOUNT HANDLING ====================
 
     private fun appendDigit(digit: Int) {
         // Max 999999.99 (99999999 kuruş)
@@ -173,8 +222,10 @@ class PaymentActivity : AppCompatActivity() {
             else -> getString(R.string.button_pay)
         }
         binding.btnPay.text = buttonText
-        binding.btnPay.isEnabled = currentAmount > 0
+        binding.btnPay.isEnabled = currentAmount > 0 && !isFlowActive()
     }
+
+    // ==================== PAYMENT PROCESSING ====================
 
     private fun processPayment() {
         val amount = BigDecimal(currentAmount).divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
@@ -187,99 +238,73 @@ class PaymentActivity : AppCompatActivity() {
 
         showLoading(loadingMessage)
 
-        // Launch payment screen on Android 10+ devices
-        launchPaymentScreen()
+        // Determine flow and payment type
+        val flow: Flow
+        val sdkPaymentType: Payment.Type
 
-        lifecycleScope.launch {
-            try {
-                val result = when (paymentType) {
-                    TYPE_REFUND -> ccv.refundAsync(amount)
-                    else -> ccv.makePaymentAsync(amount)
-                }
-
-                // Bring this activity back to foreground after payment completes
-                bringToForeground()
-
-                hideLoading()
-
-                if (result.status == TransactionStatus.SUCCESS) {
-                    showSuccessDialog(result)
-                } else {
-                    showErrorDialog(result.errorMessage ?: getString(R.string.error_transaction_failed))
-                }
-            } catch (e: Exception) {
-                // Bring this activity back to foreground on error
-                bringToForeground()
-
-                hideLoading()
-                showErrorDialog(e.message ?: getString(R.string.error_unknown))
+        when (paymentType) {
+            TYPE_REFUND -> {
+                flow = Flow.REFUND
+                sdkPaymentType = Payment.Type.REFUND
+            }
+            TYPE_AUTHORISE -> {
+                flow = Flow.AUTHORISE
+                sdkPaymentType = Payment.Type.RESERVATION
+            }
+            else -> {
+                flow = Flow.PAYMENT
+                sdkPaymentType = Payment.Type.SALE
             }
         }
-    }
 
-    /**
-     * Launch the CCV payment screen on Android 10+ devices.
-     *
-     * On Android 10 and later, apps cannot start activities from the background.
-     * The CCV terminal app provides an intent action to show the payment UI.
-     */
-    private fun launchPaymentScreen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val intent = Intent().apply {
-                action = "eu.ccv.payment.action.SHOW_PAYMENT"
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            if (intent.resolveActivity(packageManager) != null) {
-                startActivity(intent)
-            }
-        }
-    }
+        // Start the flow (sets activeFlow)
+        startFlow(flow)
 
-    /**
-     * Bring this activity back to the foreground after payment completes.
-     *
-     * This ensures the user returns to our app after the payment flow
-     * finishes on the terminal's payment screen.
-     *
-     * Uses multiple strategies for reliability:
-     * 1. moveTaskToFront() - most reliable on Android 10+
-     * 2. Intent with REORDER_TO_FRONT flag - fallback
-     */
-    private fun bringToForeground() {
-        CCVLogger.logEvent("BRING_TO_FOREGROUND", "Attempting to bring PaymentActivity to foreground")
+        // Build payment and start via flow handler
+        val terminal = getLocalTerminal()
+        val payment = buildPayment(sdkPaymentType, amount)
 
+        // Start payment via flow handler (this registers the delegate)
         try {
-            // Strategy 1: Use ActivityManager.moveTaskToFront (most reliable)
-            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            activityManager.moveTaskToFront(taskId, ActivityManager.MOVE_TASK_WITH_HOME)
-            CCVLogger.logEvent("BRING_TO_FOREGROUND", "moveTaskToFront called successfully")
-        } catch (e: Exception) {
-            CCVLogger.logError("BRING_TO_FOREGROUND", "MOVE_TASK_FAILED", e.message, e)
-        }
-
-        // Strategy 2: Use Intent as backup (with slight delay to ensure task switch completes)
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                val intent = Intent(this, PaymentActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                startActivity(intent)
-                CCVLogger.logEvent("BRING_TO_FOREGROUND", "Backup intent launched")
-            } catch (e: Exception) {
-                CCVLogger.logError("BRING_TO_FOREGROUND", "INTENT_FAILED", e.message, e)
+            when (flow) {
+                Flow.REFUND -> flowHandler.startRefund(
+                    terminal,
+                    sdkPaymentType,
+                    eu.ccvlab.mapi.core.payment.Money(amount, java.util.Currency.getInstance("EUR"))
+                )
+                Flow.AUTHORISE -> flowHandler.startReservation(
+                    terminal,
+                    sdkPaymentType,
+                    eu.ccvlab.mapi.core.payment.Money(amount, java.util.Currency.getInstance("EUR"))
+                )
+                else -> flowHandler.startPayment(terminal, payment)
             }
-        }, 100)
+
+            // Launch payment screen AFTER starting the flow (same as demo app)
+            launchPaymentScreen()
+        } catch (e: UnsupportedOperationException) {
+            // SDK doesn't support this operation (e.g., reservation on OPI-DE)
+            CCVLogger.logError(flow.name, "UNSUPPORTED", e.message ?: "Operation not supported")
+            hideLoading()
+            finishFlow()
+            showErrorDialog(getString(R.string.error_operation_not_supported))
+        }
     }
+
+    // ==================== UI HELPERS ====================
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         CCVLogger.logEvent("ON_NEW_INTENT", "PaymentActivity received new intent: ${intent.action}")
         setIntent(intent)
+
+        // Check if this is from flow finish - activity should now be in foreground
+        if (intent.getBooleanExtra("from_flow_finish", false)) {
+            CCVLogger.logEvent("ON_NEW_INTENT", "Activity brought to foreground from flow finish")
+        }
     }
 
-    private fun showSuccessDialog(result: com.example.ccvpayment.model.PaymentResult) {
+    private fun showSuccessDialog(result: PaymentResult) {
         val message = buildString {
             append(getString(R.string.payment_success_message)).append("\n\n")
             result.transactionId?.let { append(getString(R.string.payment_transaction_id, it)).append("\n") }
@@ -315,26 +340,23 @@ class PaymentActivity : AppCompatActivity() {
     private fun showLoading(message: String) {
         binding.loadingOverlay.visibility = View.VISIBLE
         binding.tvLoadingMessage.text = message
+        updatePayButton() // Disable pay button during flow
     }
 
     private fun hideLoading() {
         binding.loadingOverlay.visibility = View.GONE
+        updatePayButton() // Re-enable pay button after flow
     }
 
     private fun formatAmount(amount: BigDecimal): String {
         return "€ ${decimalFormat.format(amount)}"
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (binding.loadingOverlay.visibility == View.VISIBLE) {
-            // Ödeme sırasında geri tuşunu engelle
-            ccv.stopPayment { success ->
-                runOnUiThread {
-                    if (success) {
-                        hideLoading()
-                    }
-                }
-            }
+        if (isFlowActive()) {
+            // Abort the current flow
+            flowHandler.startAbort(getLocalTerminal())
         } else {
             super.onBackPressed()
         }

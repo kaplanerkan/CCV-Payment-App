@@ -81,6 +81,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         binding.toolbar.title = getString(R.string.app_name)
+
+        // Long press on toolbar to open Demo Payment Activity for testing
+        binding.toolbar.setOnLongClickListener {
+            startActivity(Intent(this, DemoPaymentActivity::class.java))
+            true
+        }
     }
 
     private fun setupMenuItems() {
