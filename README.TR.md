@@ -12,6 +12,19 @@
 
 CCV mAPI SDK kullanarak POS terminal işlemlerini yöneten Android ödeme terminali entegrasyon uygulaması. **Flow tabanlı mimari** kullanır.
 
+## Ekran Görüntüleri
+
+<p align="center">
+  <img src="screenshots/main_screen.png" width="200" alt="Ana Ekran"/>
+  <img src="screenshots/payment_screen.png" width="200" alt="Ödeme Ekranı"/>
+  <img src="screenshots/terminal_payment.png" width="200" alt="Terminal Ödeme"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/settings_connection.png" width="200" alt="Ayarlar - Bağlantı"/>
+  <img src="screenshots/settings_operations.png" width="200" alt="Ayarlar - İşlemler"/>
+</p>
+
 ## Gereksinimler
 
 - Android SDK 24+ (Android 7.0 Nougat)

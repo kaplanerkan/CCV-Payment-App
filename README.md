@@ -12,6 +12,19 @@
 
 Android payment terminal integration application. Manages POS terminal operations using CCV mAPI SDK with **Flow-based architecture**.
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/main_screen.png" width="200" alt="Main Screen"/>
+  <img src="screenshots/payment_screen.png" width="200" alt="Payment Screen"/>
+  <img src="screenshots/terminal_payment.png" width="200" alt="Terminal Payment"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/settings_connection.png" width="200" alt="Settings - Connection"/>
+  <img src="screenshots/settings_operations.png" width="200" alt="Settings - Operations"/>
+</p>
+
 ## Requirements
 
 - Android SDK 24+ (Android 7.0 Nougat)
