@@ -9,21 +9,22 @@
     android:focusable="true"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="16dp">
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="8dp">
 
     <ImageView
         android:id="@+id/menuIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:background="@drawable/icon_background_primary"
-        android:padding="10dp"
+        android:padding="6dp"
         tools:src="@drawable/ic_report"
         app:tint="@color/primary" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="10dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -32,23 +33,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
-            android:textSize="16sp"
+            android:textSize="13sp"
             tools:text="Gün Sonu" />
 
         <TextView
             android:id="@+id/menuSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             tools:text="Z-Report - Vardiyayı kapat" />
 
     </LinearLayout>
 
     <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
         android:src="@drawable/ic_chevron_right"
         app:tint="@color/text_tertiary" />
 
